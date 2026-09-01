@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow &ndash; Time &ndash; Depth &ndash; Area Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Flow &ndash; Time &ndash; Depth &ndash; Area Calculator</p>
+
+  <section class="page-intro">
+    <h1>Flow &ndash; Time &ndash; Depth &ndash; Area Calculator</h1>
+    <p>
+      Solves Q&middot;t = A&middot;d for whichever quantity you don't know: flow rate,
+      application time, area irrigated, or depth applied. Works for any irrigation
+      system, not just the textbook example.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="formula-box" id="formula-display">d = Q &times; t / A</div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-depth" value="depth" checked>
+        <label for="solve-depth">Depth</label>
+
+        <input type="radio" name="solve-for" id="solve-flow" value="flow">
+        <label for="solve-flow">Flow rate</label>
+
+        <input type="radio" name="solve-for" id="solve-time" value="time">
+        <label for="solve-time">Time</label>
+
+        <input type="radio" name="solve-for" id="solve-area" value="area">
+        <label for="solve-area">Area</label>
+      </div>
+    </fieldset>
+
+    <div class="field" id="field-flow">
+      <label for="flow-value">Flow rate (Q)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="flow-value" step="any" value="1">
+        <select id="flow-unit"></select>
+      </div>
+    </div>
+
+    <div class="field" id="field-time">
+      <label for="time-value">Application time (t)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="time-value" step="any" value="1">
+        <select id="time-unit"></select>
+      </div>
+    </div>
+
+    <div class="field" id="field-area">
+      <label for="area-value">Area irrigated (A)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="area-value" step="any" value="1">
+        <select id="area-unit"></select>
+      </div>
+    </div>
+
+    <div class="field" id="field-depth">
+      <label for="depth-value">Depth applied (d)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="depth-value" step="any" value="1">
+        <select id="depth-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="output-unit">Report answer in</label>
+      <select id="output-unit" style="max-width:280px;"></select>
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">&mdash;</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+    </div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 3.1
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      System flow rate (Q), time of application (t), area irrigated (A), and depth
+      applied (d) are related by (assuming Q is constant over the application time):
+    </p>
+    <p class="formula-box">Q &times; t = A &times; d</p>
+    <p>
+      Pick which quantity you want to solve for, enter the other three, and choose the
+      unit you'd like the answer reported in. This is the same relationship used to size
+      a system's run time, check a design flow rate, or back-calculate area from a
+      known application depth and time.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 3.1:</strong> A system delivers 900 gpm to 30 acres over
+      24 hours. Depth applied = 1.6 in. Click "Load textbook Example 3.1" above to see
+      it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="flow-time-depth-area.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASM 3150/5150 Tools — Irrigation Systems and Water Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html" aria-current="page">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-intro">
+    <h1>Calculation Tools</h1>
+    <p>
+      A growing set of web-based tools to help students in ASM 3150/5150 work through
+      irrigation and water management calculations. New tools will be added throughout
+      the semester — bookmark this page.
+    </p>
+  </section>
+
+  <section class="tool-grid" aria-label="Available tools">
+    <a class="tool-card" href="tools/unit-converter.html">
+      <span class="tool-card__icon" aria-hidden="true">📐</span>
+      <h2>Unit Converter</h2>
+      <p>Convert between USCS and SI units for volume, flow, length, and area used in water measurement.</p>
+    </a>
+
+    <a class="tool-card" href="tools/depth-volume-area.html">
+      <span class="tool-card__icon" aria-hidden="true">🪣</span>
+      <h2>Depth &ndash; Volume &ndash; Area</h2>
+      <p>Solve d = V/A for depth, volume, or area applied &mdash; including meter totalizer readings.</p>
+    </a>
+
+    <a class="tool-card" href="tools/flow-time-depth-area.html">
+      <span class="tool-card__icon" aria-hidden="true">⏱️</span>
+      <h2>Flow &ndash; Time &ndash; Depth &ndash; Area</h2>
+      <p>Solve Q&middot;t = A&middot;d for flow rate, time, area, or depth of application.</p>
+    </a>
+
+    <a class="tool-card" href="tools/pipe-flow-continuity.html">
+      <span class="tool-card__icon" aria-hidden="true">🌀</span>
+      <h2>Pipe Flow (Continuity)</h2>
+      <p>Solve Q = V<sub>m</sub>&middot;A for flow rate, mean velocity, or pipe diameter.</p>
+    </a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="assets/js/site.js"></script>
+</body>
+</html>

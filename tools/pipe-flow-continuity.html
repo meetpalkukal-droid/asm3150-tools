@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipe Flow (Continuity) Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Pipe Flow (Continuity) Calculator</p>
+
+  <section class="page-intro">
+    <h1>Pipe Flow (Continuity) Calculator</h1>
+    <p>
+      Solves the continuity equation Q = V<sub>m</sub>&middot;A<sub>f</sub> for a full,
+      circular pipe: flow rate, mean velocity, or inside diameter &mdash; given the
+      other two.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="formula-box" id="formula-display">Q = V<sub>m</sub> &times; (&pi;/4) &times; D&sup2;</div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-flow" value="flow" checked>
+        <label for="solve-flow">Flow rate</label>
+
+        <input type="radio" name="solve-for" id="solve-velocity" value="velocity">
+        <label for="solve-velocity">Mean velocity</label>
+
+        <input type="radio" name="solve-for" id="solve-diameter" value="diameter">
+        <label for="solve-diameter">Pipe diameter</label>
+      </div>
+    </fieldset>
+
+    <div class="field" id="field-diameter">
+      <label for="diameter-value">Pipe inside diameter (D)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="diameter-value" step="any" value="8">
+        <select id="diameter-unit"></select>
+      </div>
+    </div>
+
+    <div class="field" id="field-velocity">
+      <label for="velocity-value">Mean velocity (V<sub>m</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="velocity-value" step="any" value="5">
+        <select id="velocity-unit"></select>
+      </div>
+    </div>
+
+    <div class="field" id="field-flow">
+      <label for="flow-value">Flow rate (Q)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="flow-value" step="any" value="1">
+        <select id="flow-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="output-unit">Report answer in</label>
+      <select id="output-unit" style="max-width:280px;"></select>
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">&mdash;</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+    </div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 3.3
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      For a full, circular pipe flowing under pressure, the continuity equation relates
+      flow rate (Q), mean velocity (V<sub>m</sub>), and the pipe's cross-sectional flow
+      area (A<sub>f</sub>):
+    </p>
+    <p class="formula-box">Q = V<sub>m</sub> &times; A<sub>f</sub> &nbsp;&nbsp;where&nbsp;&nbsp; A<sub>f</sub> = (&pi;/4) &times; D&sup2;</p>
+    <p>
+      Pick which quantity you want to solve for, enter the other two, and choose the
+      unit you'd like the answer reported in. This is useful for sizing pipe (given a
+      target flow and a maximum allowable velocity), checking whether an existing
+      pipeline can carry a design flow, or converting a measured velocity to a flow
+      rate.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 3.3:</strong> An 8-in ID pipeline has a mean velocity of
+      5 ft/s. Flow rate &asymp; 785 gpm (the textbook rounds 1 cfs &asymp; 450 gpm; this
+      calculator uses precise conversion factors, so it will show a very close value).
+      Click "Load textbook Example 3.3" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="pipe-flow-continuity.js"></script>
+</body>
+</html>

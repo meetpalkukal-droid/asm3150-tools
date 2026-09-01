@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter — ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Unit Converter</p>
+
+  <section class="page-intro">
+    <h1>Water Measurement Unit Converter</h1>
+    <p>
+      Convert between U.S. Customary (USCS) and International System (SI) units commonly
+      used in irrigation and water management: volume, flow, length, and area.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Converter</h2>
+
+    <div class="field">
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="volume">Volume</option>
+        <option value="flow">Flow</option>
+        <option value="length">Length</option>
+        <option value="area">Area</option>
+      </select>
+    </div>
+
+    <div class="converter-grid">
+      <div class="field">
+        <label for="from-unit">From unit</label>
+        <select id="from-unit"></select>
+      </div>
+
+      <button type="button" class="swap-btn" id="swap-btn" title="Swap units" aria-label="Swap from and to units">⇄</button>
+
+      <div class="field">
+        <label for="to-unit">To unit</label>
+        <select id="to-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="input-value">Value to convert</label>
+      <input type="number" id="input-value" step="any" value="1">
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">—</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+      <div class="result-box__factor" id="result-factor"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Water Weight Equivalence</h2>
+    <p class="note" style="margin-top:-0.5rem;">
+      Applies to water only, at standard conditions (1 gal water ≈ 8.33 lb; 1 L water ≈ 1 kg). Useful for converting an applied water volume to a mass, e.g. for fertigation calculations.
+    </p>
+
+    <div class="converter-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="field">
+        <label for="ww-input">Value</label>
+        <input type="number" id="ww-input" step="any" value="1">
+      </div>
+      <div class="field">
+        <label for="ww-direction">Conversion</label>
+        <select id="ww-direction">
+          <option value="gal-to-lb">Gallons → Pounds</option>
+          <option value="lb-to-gal">Pounds → Gallons</option>
+          <option value="L-to-kg">Liters → Kilograms</option>
+          <option value="kg-to-L">Kilograms → Liters</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-box__value" id="ww-result" style="font-size:1.2rem;">—</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Reference: Table 3.1 — Conversion Factors Used in Water Measurement</h2>
+    <div class="table-wrap">
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>U.S. Customary System (USCS)</th>
+            <th>Conversion between USCS and SI</th>
+            <th>International System (SI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-row"><td colspan="3">Volume Units</td></tr>
+          <tr><td>1 gal = 8.33 lb</td><td>1 ft³ = 0.02832 m³</td><td>1 L = 1,000 cm³</td></tr>
+          <tr><td>1 ft³ = 7.48 gal</td><td>1 L = 0.264 gal</td><td>1 cm³ = 0.001 L</td></tr>
+          <tr><td>1 ac-in = 3,630 ft³</td><td>1 gal = 3.79 L</td><td>1 m³ = 1,000 L</td></tr>
+          <tr><td>1 ac-in = 27,154 gal</td><td>1 m³ = 264.2 gal</td><td>1 L = 0.001 m³</td></tr>
+          <tr><td>1 ac-ft = 43,560 ft³</td><td>1 ac-in = 1.028 ha-cm</td><td>1 ha-cm = 100 m³</td></tr>
+          <tr><td>1 ac-ft = 325,851 gal</td><td></td><td></td></tr>
+
+          <tr class="section-row"><td colspan="3">Flow Units</td></tr>
+          <tr><td>1 cfs = 449 gpm (450 for practical purposes)</td><td>1 cfs = 0.02832 cms</td><td>1 L/s = 1,000 mL/s</td></tr>
+          <tr><td>1 cfs = 1 ac-in/hr</td><td>1 cms = 35.31 cfs</td><td>1 cms = 60,000 L/min*</td></tr>
+          <tr><td>452 gpm (450 for practical purposes) = 1 ac-in/hr</td><td>1 gpm = 0.06309 L/s</td><td></td></tr>
+          <tr><td>1 gpm = 0.00223 cfs</td><td>1 L/s = 15.85 gpm</td><td></td></tr>
+          <tr><td>1 gpm = 0.00221 ac-in/hr</td><td>1 gal/h = 1.05 mL/s*</td><td></td></tr>
+
+          <tr class="section-row"><td colspan="3">Length Units</td></tr>
+          <tr><td>1 mile = 5280 ft</td><td>1 ft = 0.3048 meters</td><td>1 cm = 0.01 meter</td></tr>
+          <tr><td>1 rod = 16.5 ft</td><td>1 meter = 3.281 ft</td><td>1 meter = 100 cm</td></tr>
+          <tr><td></td><td></td><td>1 km = 1,000 meter</td></tr>
+
+          <tr class="section-row"><td colspan="3">Area Units</td></tr>
+          <tr><td>1 ac = 43,560 ft²</td><td>1 ac = 0.4047 ha</td><td>1 ha = 10,000 m²</td></tr>
+          <tr><td></td><td>1 ha = 2.471 ac</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      cfs = cubic feet per second &nbsp;•&nbsp; cms = cubic meters per second &nbsp;•&nbsp;
+      gpm = gallons per minute &nbsp;•&nbsp; L/s = liters per second
+    </p>
+    <p class="note">
+      * The printed textbook lists these two values as "1 cms = 16.7 L/min" and
+      "1 gal/h = 63.1 mL/s," which don't hold up dimensionally (1 cms is 1 m&sup3;/s =
+      60,000 L/min, and 1 gal/h &asymp; 1.05 mL/s &mdash; the printed 63.1 mL/s is actually
+      1 gal/min). They've been corrected here so the reference table is dimensionally
+      accurate for the units labeled.
+    </p>
+    <p class="note">
+      The calculator above uses precise conversion factors internally (rather than the
+      rounded values shown in this reference table) so that chained conversions stay
+      accurate.
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="unit-converter.js"></script>
+</body>
+</html>

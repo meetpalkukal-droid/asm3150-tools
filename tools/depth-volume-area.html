@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Depth &ndash; Volume &ndash; Area Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Depth &ndash; Volume &ndash; Area Calculator</p>
+
+  <section class="page-intro">
+    <h1>Depth &ndash; Volume &ndash; Area Calculator</h1>
+    <p>
+      Solves the depth&ndash;volume&ndash;area relationship (d = V/A) for whichever quantity you
+      don't know. Works for any combination of consistent volume, area, and depth
+      units &mdash; not just the textbook example.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="formula-box" id="formula-display">d = V / A</div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-depth" value="depth" checked>
+        <label for="solve-depth">Depth</label>
+
+        <input type="radio" name="solve-for" id="solve-volume" value="volume">
+        <label for="solve-volume">Volume</label>
+
+        <input type="radio" name="solve-for" id="solve-area" value="area">
+        <label for="solve-area">Area</label>
+      </div>
+    </fieldset>
+
+    <!-- Volume field -->
+    <div class="field" id="field-volume">
+      <label for="volume-value">Volume applied</label>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="totalizer-toggle">
+        <label for="totalizer-toggle">Use flow meter totalizer readings (after &minus; before) instead</label>
+      </div>
+
+      <div class="value-unit-pair">
+        <div>
+          <div id="volume-simple">
+            <input type="number" id="volume-value" step="any" value="1">
+          </div>
+          <div id="volume-totalizer" class="totalizer-row field--hidden">
+            <input type="number" id="totalizer-before" step="any" placeholder="Before reading" value="0">
+            <input type="number" id="totalizer-after" step="any" placeholder="After reading" value="1">
+          </div>
+        </div>
+        <select id="volume-unit"></select>
+      </div>
+    </div>
+
+    <!-- Area field -->
+    <div class="field" id="field-area">
+      <label for="area-value">Area irrigated</label>
+      <div class="value-unit-pair">
+        <input type="number" id="area-value" step="any" value="1">
+        <select id="area-unit"></select>
+      </div>
+    </div>
+
+    <!-- Depth field -->
+    <div class="field" id="field-depth">
+      <label for="depth-value">Depth applied</label>
+      <div class="value-unit-pair">
+        <input type="number" id="depth-value" step="any" value="1">
+        <select id="depth-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="output-unit">Report answer in</label>
+      <select id="output-unit" style="max-width:280px;"></select>
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">&mdash;</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+    </div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 3.2
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Depth of application (d), volume of water applied (V), and area irrigated (A) are
+      related by:
+    </p>
+    <p class="formula-box">d = V / A &nbsp;&nbsp;&mdash;&nbsp;&nbsp; V = A &times; d &nbsp;&nbsp;&mdash;&nbsp;&nbsp; A = V / d</p>
+    <p>
+      Pick which quantity you want to solve for, enter the other two, and choose the
+      unit you'd like the answer reported in. If your volume comes from a flow meter's
+      volume totalizer, check "Use flow meter totalizer readings" and enter the before
+      and after readings directly &mdash; the calculator subtracts them for you.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 3.2:</strong> A flow meter totalizer registered
+      12,590,900 gal after an irrigation and 8,925,100 gal before it, on a 90-acre
+      field. Depth applied = 1.5 in. Click "Load textbook Example 3.2" above to see it
+      worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="depth-volume-area.js"></script>
+</body>
+</html>
