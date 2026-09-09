@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soil Water Depletion &amp; Irrigation Scheduling Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Soil Water Depletion &amp; Irrigation Scheduling Calculator</p>
+
+  <section class="page-intro">
+    <h1>Soil Water Depletion &amp; Irrigation Scheduling Calculator</h1>
+    <p>
+      Answers the two central irrigation-scheduling questions: how depleted is the
+      root zone right now, and at what water content should the next irrigation start?
+      Based on field capacity, wilting point, and available water capacity (Table 2.3
+      can supply planning-level defaults if you don't have measured values).
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="field">
+      <label for="texture-autofill">Auto-fill &theta;<sub>fc</sub> / &theta;<sub>wp</sub> from soil texture (optional)</label>
+      <select id="texture-autofill" style="max-width:320px;"></select>
+    </div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-status" value="status" checked>
+        <label for="solve-status">Current depletion status</label>
+
+        <input type="radio" name="solve-for" id="solve-trigger" value="trigger">
+        <label for="solve-trigger">Irrigation trigger point</label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label for="fc-input">Field capacity (&theta;<sub>fc</sub>)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="fc-input" step="any" value="34">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="wp-input">Wilting point (&theta;<sub>wp</sub>)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="wp-input" step="any" value="16">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+
+    <div class="field" id="field-current-theta-v">
+      <label for="current-theta-v">Current water content (&theta;<sub>v</sub>)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="current-theta-v" step="any" value="26">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+
+    <div class="field field--hidden" id="field-target-fd">
+      <label for="target-fd">Target management allowed depletion (MAD)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="target-fd" step="any" value="50">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+      <p class="note">Common MAD values are 40&ndash;60% depending on crop sensitivity to water stress.</p>
+    </div>
+
+    <div class="field">
+      <label for="root-depth">Root zone / soil layer depth</label>
+      <div class="value-unit-pair">
+        <input type="number" id="root-depth" step="any" value="36">
+        <select id="root-depth-unit"></select>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 2.3
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Available water capacity (AWC) is the depth of water per unit soil depth that's
+      actually usable by the plant &mdash; held between field capacity and the wilting
+      point. As the crop uses water, the fraction depleted (f<sub>d</sub>) climbs from 0
+      (at field capacity) toward 1 (at the wilting point). Soil water deficit (SWD) is
+      the depth of water needed to refill the root zone back to field capacity &mdash;
+      i.e., how much to irrigate right now.
+    </p>
+    <p class="formula-box">
+      AWC = &theta;<sub>fc</sub> &minus; &theta;<sub>wp</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      f<sub>d</sub> = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) / AWC &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      SWD = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) &times; L &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      TAW = AWC &times; L
+    </p>
+    <p>
+      "Current depletion status" tells you where the root zone stands right now.
+      "Irrigation trigger point" flips the question around: given a management allowed
+      depletion (MAD) &mdash; the fraction of AWC you're willing to let the crop use before
+      stressing it &mdash; it tells you the water content (and the SWD) at which the next
+      irrigation should start.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 2.3:</strong> A silt loam soil (&theta;<sub>fc</sub> = 0.34,
+      &theta;<sub>wp</sub> = 0.16) with a current water content of 0.26, over a 36-in root
+      zone: f<sub>d</sub> = 0.44, f<sub>r</sub> = 0.56, AWC = 0.18 in/in, SWD &asymp; 2.9 in.
+      Click "Load textbook Example 2.3" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/soil-data.js"></script>
+<script src="soil-water-depletion-scheduling.js"></script>
+</body>
+</html>

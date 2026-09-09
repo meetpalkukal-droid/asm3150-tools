@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soil Texture Water Characteristics Lookup &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Soil Texture Water Characteristics Lookup</p>
+
+  <section class="page-intro">
+    <h1>Soil Texture Water Characteristics Lookup</h1>
+    <p>
+      Don't have a lab-measured field capacity or wilting point for a soil? Pick a soil
+      texture below for planning-level estimates &mdash; useful for homework, quick
+      irrigation scheduling estimates, or as a starting point before site-specific data
+      is available.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Lookup</h2>
+
+    <div class="field">
+      <label for="texture-select">Soil texture</label>
+      <select id="texture-select" style="max-width:320px;"></select>
+    </div>
+
+    <div class="result-box" style="flex-direction:column; align-items:stretch; gap:0.75rem;">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div class="result-box__value" id="fc-value" style="font-size:1.4rem;">&mdash;</div>
+          <div class="result-box__label">Field capacity (&theta;<sub>fc</sub>)</div>
+        </div>
+        <div>
+          <div class="result-box__value" id="wp-value" style="font-size:1.4rem;">&mdash;</div>
+          <div class="result-box__label">Wilting point (&theta;<sub>wp</sub>)</div>
+        </div>
+        <div>
+          <div class="result-box__value" id="awc-value" style="font-size:1.4rem;">&mdash;</div>
+          <div class="result-box__label">Available water capacity (AWC)</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">
+      Values are dimensionless volumetric water content (cm&sup3;/cm&sup3;, in/in, or
+      m/m) &mdash; e.g. an AWC of 0.15 in/in means 0.15 inches of available water per inch
+      of soil depth.
+    </p>
+
+    <p style="margin-top:1rem;">
+      <a href="soil-water-depletion-scheduling.html" class="swap-btn" id="use-in-scheduling" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem; text-decoration:none; display:inline-block;">
+        Use these values in the Irrigation Scheduling Calculator &rarr;
+      </a>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Reference: Table 2.3 &mdash; Example Soil Water Characteristics by Texture</h2>
+    <div class="table-wrap">
+      <table class="ref-table" id="texture-table">
+        <thead>
+          <tr>
+            <th>Soil texture</th>
+            <th>&theta;<sub>fc</sub></th>
+            <th>&theta;<sub>wp</sub></th>
+            <th>AWC</th>
+          </tr>
+        </thead>
+        <tbody id="texture-table-body"></tbody>
+      </table>
+    </div>
+    <p class="note">
+      Source: Table 2.3, Eisenhauer, Martin, Heeren, &amp; Hoffman (2021), <em>Irrigation
+      Systems Management</em>, ASABE. The textbook's own note applies: "Example values are
+      given. You can expect considerable variation from these values within each soil
+      texture." Use site-specific measurements when they're available.
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/soil-data.js"></script>
+<script src="soil-texture-lookup.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soil Bulk Density &amp; Porosity Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Soil Bulk Density &amp; Porosity Calculator</p>
+
+  <section class="page-intro">
+    <h1>Soil Bulk Density &amp; Porosity Calculator</h1>
+    <p>
+      Solves &rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub> for bulk density, dry mass, or
+      bulk volume, and uses the result to compute soil porosity &mdash; the fraction of a
+      soil's volume available to store water and air. Useful for interpreting core
+      samples, compaction checks, or any soil physics problem needing bulk density.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Bulk Density</h2>
+
+    <div class="formula-box" id="formula-display">&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub></div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-density" value="density" checked>
+        <label for="solve-density">Bulk density</label>
+
+        <input type="radio" name="solve-for" id="solve-mass" value="mass">
+        <label for="solve-mass">Dry mass</label>
+
+        <input type="radio" name="solve-for" id="solve-volume" value="volume">
+        <label for="solve-volume">Bulk volume</label>
+      </div>
+    </fieldset>
+
+    <div class="field" id="field-mass">
+      <label for="mass-value">Dry soil mass (M<sub>s</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="mass-value" step="any" value="100">
+        <select id="mass-unit"></select>
+      </div>
+    </div>
+
+    <div class="field" id="field-volume">
+      <label for="volume-value">Bulk sample volume (V<sub>b</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="volume-value" step="any" value="80">
+        <select id="volume-unit">
+          <option value="cm3">Cubic centimeters (cm&sup3;)</option>
+          <option value="m3">Cubic meters (m&sup3;)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" id="field-density">
+      <label for="density-value">Bulk density (&rho;<sub>b</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="density-value" step="any" value="1.25">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted); font-size:0.9rem;">g/cm&sup3;</div>
+      </div>
+    </div>
+
+    <div class="field" id="field-output-unit">
+      <label for="output-unit">Report answer in</label>
+      <select id="output-unit" style="max-width:280px;"></select>
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">&mdash;</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+    </div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 2.1
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Porosity</h2>
+    <p class="formula-box">&phi; = (1 &minus; &rho;<sub>b</sub> / &rho;<sub>p</sub>) &times; 100%</p>
+
+    <div class="field">
+      <label for="particle-density">Particle density (&rho;<sub>p</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="particle-density" step="any" value="2.65">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted); font-size:0.9rem;">g/cm&sup3;</div>
+      </div>
+      <p class="note">2.65 g/cm&sup3; is a common default for mineral soils &mdash; lower for soils with more organic matter.</p>
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="porosity-value">&mdash;</div>
+        <div class="result-box__label">Porosity (pore space) &mdash; <span id="solids-value">&mdash;</span> soil solids</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Bulk density (&rho;<sub>b</sub>) is the mass of dry soil per unit of undisturbed (bulk)
+      volume &mdash; it reflects how tightly packed the soil is, including its pore space.
+      Porosity (&phi;) is the fraction of that bulk volume made up of pores (voids that can
+      hold air or water), calculated from bulk density and particle density:
+    </p>
+    <p class="formula-box">&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp; &phi; = (1 &minus; &rho;<sub>b</sub> / &rho;<sub>p</sub>) &times; 100%</p>
+    <p>
+      Higher bulk density means less pore space, which generally means less capacity to
+      store water and more resistance to root growth &mdash; a common way to flag soil
+      compaction. Pick which quantity you want to solve for (bulk density, dry mass, or
+      bulk volume), enter the other two, and the porosity below updates automatically
+      from whichever bulk density results.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 2.1:</strong> An undisturbed soil sample with a volume of
+      80 cm&sup3; has a dry mass of 100 g. Bulk density = 1.25 g/cm&sup3;; porosity = 53%
+      (47% soil particles, 53% pore space). Click "Load textbook Example 2.1" above to see
+      it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="bulk-density-porosity.js"></script>
+</body>
+</html>

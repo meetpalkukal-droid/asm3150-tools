@@ -74,6 +74,15 @@ const UNIT_CATEGORIES = {
       "m/s":  { label: "Meters per second (m/s)", toBase: 1 },
     },
   },
+  mass: {
+    label: "Mass",
+    baseLabel: "grams (g)",
+    units: {
+      "g":  { label: "Grams (g)",     toBase: 1 },
+      "kg": { label: "Kilograms (kg)", toBase: 1000 },
+      "lb": { label: "Pounds (lb)",   toBase: 453.59237 },
+    },
+  },
 };
 
 // Convert a value from one unit to another within the same category.

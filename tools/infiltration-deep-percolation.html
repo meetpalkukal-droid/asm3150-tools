@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infiltration Depth &amp; Deep Percolation Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .layer-row {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr 1fr 1fr 2.4rem;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .layer-row__label { font-weight: 700; color: var(--text-muted); font-size: 0.85rem; }
+  .layer-row input[type="number"] { width: 100%; }
+  .layer-row__remove {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-muted); cursor: pointer; height: 2.3rem;
+  }
+  .layer-row__remove:hover { background: #fdecec; border-color: #d9534f; color: #d9534f; }
+  .layer-header {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr 1fr 1fr 2.4rem;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .unbounded-note { font-size: 0.78rem; color: var(--text-muted); margin: 0.15rem 0 0.75rem 2.7rem; }
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .layer-trace { font-size: 0.85rem; border-collapse: collapse; width: 100%; margin-top: 0.75rem; }
+  .layer-trace th, .layer-trace td { padding: 0.4rem 0.6rem; border: 1px solid var(--border); text-align: left; }
+  .layer-trace th { background: var(--ui-silver-light); }
+  .warning-box {
+    background: #fdecec; border: 1px solid #d9534f; border-radius: var(--radius);
+    padding: 0.75rem 1rem; font-size: 0.88rem; color: #7a1f1f; margin-top: 0.75rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Infiltration Depth &amp; Deep Percolation Calculator</p>
+
+  <section class="page-intro">
+    <h1>Infiltration Depth &amp; Deep Percolation Calculator</h1>
+    <p>
+      Given a layered soil profile and an applied depth of water, finds how deep the
+      wetting front penetrates &mdash; and, given a root zone depth, how much of that
+      water passed below the roots as deep percolation (wasted water, and a pathway for
+      leaching chemicals out of the root zone).
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Soil Profile</h2>
+    <p class="note">
+      List layers from the surface down. Each layer needs a field capacity
+      (&theta;<sub>fc</sub>) and current water content (&theta;<sub>v</sub>) &mdash; the
+      difference is how much water that layer can still absorb per unit depth before
+      the wetting front moves on. The last layer can be marked "extends indefinitely"
+      if you don't know (or don't need) its bottom boundary.
+    </p>
+
+    <div class="field" style="max-width:220px;">
+      <label for="depth-unit">Depth unit (used throughout)</label>
+      <select id="depth-unit"></select>
+    </div>
+
+    <div class="layer-header">
+      <div></div>
+      <div>Thickness</div>
+      <div>&theta;<sub>fc</sub> (%)</div>
+      <div>&theta;<sub>v</sub> (%)</div>
+      <div></div>
+    </div>
+    <div id="layers-container"></div>
+
+    <p>
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.45rem 0.9rem; font-size:0.85rem;" id="add-layer">
+        + Add layer
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Applied Water &amp; Root Zone</h2>
+
+    <div class="field">
+      <label for="applied-depth">Total infiltrated depth applied</label>
+      <input type="number" id="applied-depth" step="any" value="4">
+    </div>
+
+    <div class="field">
+      <label for="root-depth">Root zone depth (optional &mdash; leave blank to skip deep percolation)</label>
+      <input type="number" id="root-depth" step="any" value="36">
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="match-textbook">
+      <label for="match-textbook">Match textbook rounding (rounds each intermediate step to 1 decimal, like the worked example)</label>
+    </div>
+
+    <div id="warning-container"></div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <div class="table-wrap">
+      <table class="layer-trace" id="trace-table" style="display:none;">
+        <thead>
+          <tr><th>Layer</th><th>Wetted interval</th><th>Water deficit filled</th><th>Status</th></tr>
+        </thead>
+        <tbody id="trace-body"></tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 2.4 &amp; 2.5
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      As water infiltrates, each soil layer fills to field capacity before the wetting
+      front advances into the next layer. The depth of water a layer can still absorb
+      is its water deficit per unit depth (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>)
+      times its thickness &mdash; the same soil water deficit (SWD) calculation as the
+      scheduling calculator, applied layer by layer:
+    </p>
+    <p class="formula-box">SWD<sub>layer</sub> = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) &times; thickness</p>
+    <p>
+      The applied water fills each layer's deficit in turn; wherever it runs out mid-layer,
+      that's the wetting front. If the front goes deeper than the root zone, the water
+      that filled soil below the roots is lost to deep percolation &mdash; it can't be
+      used by the crop, and it's how nitrate and other mobile chemicals leach out of the
+      root zone.
+    </p>
+    <p class="note">
+      This calculator carries full precision through every step by default. The
+      textbook's worked example rounds each layer's SWD to 1 decimal place before
+      moving to the next step, which compounds noticeably here (a partial-layer depth
+      divided by a small deficit amplifies small rounding differences). Full precision
+      gives a wetting front of about 47.7 in and deep percolation of about 0.70 in for
+      Example 2.4/2.5, versus the textbook's rounded 46.7 in and 0.6 in &mdash; check
+      "Match textbook rounding" above to reproduce the book's numbers exactly.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Examples 2.4 &amp; 2.5:</strong> 4 in of water infiltrates a
+      profile of 0&ndash;12 in (&theta;<sub>fc</sub>=0.34, &theta;<sub>v</sub>=0.20),
+      12&ndash;30 in (&theta;<sub>fc</sub>=0.40, &theta;<sub>v</sub>=0.33), and 30+ in
+      (&theta;<sub>fc</sub>=0.30, &theta;<sub>v</sub>=0.24, unbounded). With a 36-in root
+      zone, deep percolation &asymp; 0.6&ndash;0.7 in. Click "Load textbook Example 2.4 &amp;
+      2.5" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="infiltration-deep-percolation.js"></script>
+</body>
+</html>
