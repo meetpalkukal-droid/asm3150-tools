@@ -36,10 +36,11 @@
   <section class="page-intro">
     <h1>Soil Water Depletion &amp; Irrigation Scheduling Calculator</h1>
     <p>
-      Answers the two central irrigation-scheduling questions: how depleted is the
-      root zone right now, and at what water content should the next irrigation start?
-      Based on field capacity, wilting point, and available water capacity (Table 2.3
-      can supply planning-level defaults if you don't have measured values).
+      Finds how depleted the root zone is right now &mdash; fraction depleted, fraction
+      remaining, available water capacity, and soil water deficit &mdash; based on field
+      capacity, wilting point, and current water content (Table 2.3 can supply
+      planning-level &theta;<sub>fc</sub>/&theta;<sub>wp</sub> defaults if you don't have
+      measured values).
     </p>
   </section>
 
@@ -50,17 +51,6 @@
       <label for="texture-autofill">Auto-fill &theta;<sub>fc</sub> / &theta;<sub>wp</sub> from soil texture (optional)</label>
       <select id="texture-autofill" style="max-width:320px;"></select>
     </div>
-
-    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
-      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
-      <div class="solve-for" id="solve-for-group">
-        <input type="radio" name="solve-for" id="solve-status" value="status" checked>
-        <label for="solve-status">Current depletion status</label>
-
-        <input type="radio" name="solve-for" id="solve-trigger" value="trigger">
-        <label for="solve-trigger">Irrigation trigger point</label>
-      </div>
-    </fieldset>
 
     <div class="field">
       <label for="fc-input">Field capacity (&theta;<sub>fc</sub>)</label>
@@ -84,15 +74,6 @@
         <input type="number" id="current-theta-v" step="any" value="26">
         <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
       </div>
-    </div>
-
-    <div class="field field--hidden" id="field-target-fd">
-      <label for="target-fd">Target management allowed depletion (MAD)</label>
-      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
-        <input type="number" id="target-fd" step="any" value="50">
-        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
-      </div>
-      <p class="note">Common MAD values are 40&ndash;60% depending on crop sensitivity to water stress.</p>
     </div>
 
     <div class="field">
@@ -127,13 +108,6 @@
       f<sub>d</sub> = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) / AWC &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       SWD = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) &times; L &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       TAW = AWC &times; L
-    </p>
-    <p>
-      "Current depletion status" tells you where the root zone stands right now.
-      "Irrigation trigger point" flips the question around: given a management allowed
-      depletion (MAD) &mdash; the fraction of AWC you're willing to let the crop use before
-      stressing it &mdash; it tells you the water content (and the SWD) at which the next
-      irrigation should start.
     </p>
     <div class="example-box">
       <strong>Textbook Example 2.3:</strong> A silt loam soil (&theta;<sub>fc</sub> = 0.34,
