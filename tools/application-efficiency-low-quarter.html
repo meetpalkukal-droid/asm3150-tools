@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
@@ -141,7 +142,7 @@
       &mdash; is used as the practical "management depth": irrigating to d<sub>LQ</sub>
       results in about 90% of the field being adequately watered.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="d_{ev} = d_g - d_z - d_r \qquad d_{LQ} = DU \times d_z \qquad d_e = \min(d_{LQ}, SWD) \qquad E_{LQ} = 100\% \times \dfrac{d_e}{d_a}">
       d<sub>ev</sub> = d<sub>g</sub> &minus; d<sub>z</sub> &minus; d<sub>r</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       d<sub>LQ</sub> = DU &times; d<sub>z</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       d<sub>e</sub> = min(d<sub>LQ</sub>, SWD) &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
@@ -169,6 +170,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="application-efficiency-low-quarter.js"></script>

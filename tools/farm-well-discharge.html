@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
@@ -73,7 +74,7 @@
 
   <section class="panel">
     <h2>1. Farm-Wide Capacity</h2>
-    <p class="formula-box">C<sub>g</sub> = C<sub>n</sub> / [(E<sub>LQ</sub>/100%)(1&minus;D<sub>t</sub>/100%)]</p>
+    <p class="formula-box" data-latex="C_g = \dfrac{C_n}{\left(\frac{E_{LQ}}{100\%}\right)\left(1-\frac{D_t}{100\%}\right)}">C<sub>g</sub> = C<sub>n</sub> / [(E<sub>LQ</sub>/100%)(1&minus;D<sub>t</sub>/100%)]</p>
 
     <div class="field">
       <label for="cn-value">Net system capacity (C<sub>n</sub>)</label>
@@ -151,7 +152,7 @@
       each field's own conveyance losses (and any shared main-canal losses) inflate that
       further into what the well actually has to discharge.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="Q_{f,\text{field}} = \dfrac{C_g \times \text{Area}}{\left(\frac{E_{c,\text{field}}}{100\%}\right)} \qquad Q_{well} = \dfrac{\sum Q_f}{\left(\frac{E_{c,\text{main}}}{100\%}\right)}">
       Q<sub>f, field</sub> = C<sub>g</sub> &times; Area / (E<sub>c, field</sub>/100%)
       &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       Q<sub>well</sub> = &Sigma;Q<sub>f</sub> / (E<sub>c, main</sub>/100%)
@@ -170,6 +171,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="farm-well-discharge.js"></script>

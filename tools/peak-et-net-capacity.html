@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
@@ -50,7 +51,7 @@
 
   <section class="panel">
     <h2>Step 1 &mdash; Allowable Depletion (optional helper)</h2>
-    <p class="formula-box">AD = AWC (in/ft) &times; root depth (ft) &times; allowable fraction depleted</p>
+    <p class="formula-box" data-latex="AD = AWC\ (\text{in/ft}) \times \text{root depth (ft)} \times \text{allowable fraction depleted}">AD = AWC (in/ft) &times; root depth (ft) &times; allowable fraction depleted</p>
     <div class="field">
       <label for="awc-value">Available water capacity (AWC)</label>
       <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
@@ -114,7 +115,7 @@
 
   <section class="panel">
     <h2>Step 3 &mdash; Gross System Capacity</h2>
-    <p class="formula-box">C<sub>g</sub> = C<sub>n</sub> / [(E<sub>LQ</sub>/100%)(1&minus;D<sub>t</sub>/100%)]</p>
+    <p class="formula-box" data-latex="C_g = \dfrac{C_n}{\left(\frac{E_{LQ}}{100\%}\right)\left(1-\frac{D_t}{100\%}\right)}">C<sub>g</sub> = C<sub>n</sub> / [(E<sub>LQ</sub>/100%)(1&minus;D<sub>t</sub>/100%)]</p>
     <div class="field">
       <label for="cn-input">Net system capacity (C<sub>n</sub>)</label>
       <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
@@ -166,6 +167,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="peak-et-net-capacity.js"></script>

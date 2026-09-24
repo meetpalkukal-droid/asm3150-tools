@@ -25,9 +25,9 @@ populateUnitSelect(massUnit, "mass", "g");
 
 const FIELDS = { density: fieldDensity, mass: fieldMass, volume: fieldVolume };
 const FORMULAS = {
-  density: "&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub>",
-  mass: "M<sub>s</sub> = &rho;<sub>b</sub> &times; V<sub>b</sub>",
-  volume: "V<sub>b</sub> = M<sub>s</sub> / &rho;<sub>b</sub>",
+  density: "\\rho_b = \\dfrac{M_s}{V_b}",
+  mass: "M_s = \\rho_b \\times V_b",
+  volume: "V_b = \\dfrac{M_s}{\\rho_b}",
 };
 
 const DENSITY_UNITS = { "g/cm3": { label: "g/cm³", factor: 1 }, "kg/m3": { label: "kg/m³", factor: 1000 } };
@@ -68,7 +68,8 @@ function populateOutputUnit(target) {
 function updateVisibility() {
   const target = currentTarget();
   Object.keys(FIELDS).forEach((key) => FIELDS[key].classList.toggle("field--hidden", key === target));
-  formulaDisplay.innerHTML = FORMULAS[target];
+  formulaDisplay.setAttribute("data-latex", FORMULAS[target]);
+  renderMathFormulas();
   populateOutputUnit(target);
 }
 

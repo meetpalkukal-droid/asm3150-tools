@@ -24,9 +24,9 @@ populateUnitSelect(flowUnit, "flow", "gpm");
 
 const FIELDS = { diameter: fieldDiameter, velocity: fieldVelocity, flow: fieldFlow };
 const FORMULAS = {
-  flow: "Q = V<sub>m</sub> × (π/4) × D²",
-  velocity: "V<sub>m</sub> = Q / [(π/4) × D²]",
-  diameter: "D = √[4Q / (π × V<sub>m</sub>)]",
+  flow: "Q = V_m \\times \\dfrac{\\pi}{4} \\times D^2",
+  velocity: "V_m = \\dfrac{Q}{\\frac{\\pi}{4}D^2}",
+  diameter: "D = \\sqrt{\\dfrac{4Q}{\\pi V_m}}",
 };
 const OUTPUT_CATEGORY = { flow: "flow", velocity: "velocity", diameter: "length" };
 const DEFAULT_OUTPUT_UNIT = { flow: "gpm", velocity: "ft/s", diameter: "in" };
@@ -39,7 +39,8 @@ function currentTarget() {
 function updateVisibility() {
   const target = currentTarget();
   Object.keys(FIELDS).forEach((key) => FIELDS[key].classList.toggle("field--hidden", key === target));
-  formulaDisplay.innerHTML = FORMULAS[target];
+  formulaDisplay.setAttribute("data-latex", FORMULAS[target]);
+  renderMathFormulas();
   populateUnitSelect(outputUnit, OUTPUT_CATEGORY[target], lastOutputUnit[target]);
 }
 

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -39,7 +40,7 @@
   <section class="panel">
     <h2>Calculator</h2>
 
-    <div class="formula-box" id="formula-display">Q = V<sub>m</sub> &times; (&pi;/4) &times; D&sup2;</div>
+    <div class="formula-box" id="formula-display" data-latex="Q = V_m \times \dfrac{\pi}{4} \times D^2">Q = V<sub>m</sub> &times; (&pi;/4) &times; D&sup2;</div>
 
     <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
       <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
@@ -105,7 +106,7 @@
       flow rate (Q), mean velocity (V<sub>m</sub>), and the pipe's cross-sectional flow
       area (A<sub>f</sub>):
     </p>
-    <p class="formula-box">Q = V<sub>m</sub> &times; A<sub>f</sub> &nbsp;&nbsp;where&nbsp;&nbsp; A<sub>f</sub> = (&pi;/4) &times; D&sup2;</p>
+    <p class="formula-box" data-latex="Q = V_m A_f \quad \text{where} \quad A_f = \dfrac{\pi}{4} D^2">Q = V<sub>m</sub> &times; A<sub>f</sub> &nbsp;&nbsp;where&nbsp;&nbsp; A<sub>f</sub> = (&pi;/4) &times; D&sup2;</p>
     <p>
       Pick which quantity you want to solve for, enter the other two, and choose the
       unit you'd like the answer reported in. This is useful for sizing pipe (given a
@@ -126,6 +127,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="pipe-flow-continuity.js"></script>

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
@@ -119,10 +120,10 @@
       Vegetative loss is estimated separately as a percentage of the flow, per mile of
       channel.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="\text{Seepage loss} = (\text{wetted perimeter} \times \text{length}) \times \text{seepage rate} \times \text{days}">
       Seepage loss = (wetted perimeter &times; length) &times; seepage rate &times; days
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="\text{Vegetative loss} = (\%\text{ per mile}) \times Q \times \left(\dfrac{\text{length}}{5280\text{ ft}}\right) \times \text{days}">
       Vegetative loss = (% per mile) &times; Q &times; (length / 5280 ft) &times; days
     </p>
     <p class="note">
@@ -144,6 +145,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="conveyance-seepage-loss.js"></script>

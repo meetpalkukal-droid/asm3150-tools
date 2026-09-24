@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
@@ -146,18 +147,18 @@
       driest 25% of the field to the field average &mdash; it answers "how bad is it where
       it's worst?"
     </p>
-    <p class="formula-box">DU = d<sub>LQ</sub> / d<sub>z</sub> &times; 100%</p>
+    <p class="formula-box" data-latex="DU = \dfrac{d_{LQ}}{d_z} \times 100\%">DU = d<sub>LQ</sub> / d<sub>z</sub> &times; 100%</p>
     <p>
       <strong>CU (Christiansen's uniformity coefficient)</strong> is based on the average
       deviation of every can from the mean &mdash; a more holistic, less worst-case view.
     </p>
-    <p class="formula-box">CU = 100% &times; (1 &minus; &Sigma|d<sub>i</sub> &minus; d<sub>z</sub>| / (n &times; d<sub>z</sub>))</p>
+    <p class="formula-box" data-latex="CU = 100\% \times \left(1 - \dfrac{\sum_{i=1}^{n}|d_i - d_z|}{n\, d_z}\right)">CU = 100% &times; (1 &minus; &Sigma|d<sub>i</sub> &minus; d<sub>z</sub>| / (n &times; d<sub>z</sub>))</p>
     <p>
       <strong>CU<sub>H</sub> (Heermann-Hein, for center pivots)</strong> weights each can's
       deviation by its distance from the pivot, since a can far out represents far more
       irrigated area (a bigger annulus) than one close in.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="CU_H = 100\% \times \left(1 - \dfrac{\sum S_i|d_i - d_z^{*}|}{\sum S_i d_i}\right) \quad \text{where} \quad d_z^{*} = \dfrac{\sum d_i S_i}{\sum S_i}">
       CU<sub>H</sub> = 100% &times; (1 &minus; &Sigma S<sub>i</sub>|d<sub>i</sub> &minus; d<sub>z</sub><sup>*</sup>| / &Sigma S<sub>i</sub>d<sub>i</sub>)
       &nbsp;&nbsp;where&nbsp;&nbsp; d<sub>z</sub><sup>*</sup> = &Sigma d<sub>i</sub>S<sub>i</sub> / &Sigma S<sub>i</sub>
     </p>
@@ -178,6 +179,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="catch-can-uniformity.js"></script>

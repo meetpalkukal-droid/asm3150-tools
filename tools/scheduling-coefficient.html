@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -102,7 +103,7 @@
       1.25 &mdash; the system needs to run 25% longer than a perfectly uniform system
       would, so that the driest spots (the low quarter) still receive the target depth.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="d_{LQ} = DU \times d_z \qquad SC = \dfrac{d_z}{d_{LQ}} = \dfrac{1}{DU} \qquad \text{actual time} = \text{ideal time} \times SC">
       d<sub>LQ</sub> = DU &times; d<sub>z</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       SC = d<sub>z</sub> / d<sub>LQ</sub> = 1 / DU &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       actual time = ideal time &times; SC
@@ -121,6 +122,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="scheduling-coefficient.js"></script>

@@ -30,10 +30,10 @@ populateUnitSelect(depthUnit, "length", "in");
 
 const FIELDS = { flow: fieldFlow, time: fieldTime, area: fieldArea, depth: fieldDepth };
 const FORMULAS = {
-  depth: "d = Q × t / A",
-  flow: "Q = A × d / t",
-  time: "t = A × d / Q",
-  area: "A = Q × t / d",
+  depth: "d = \\dfrac{Q \\times t}{A}",
+  flow: "Q = \\dfrac{A \\times d}{t}",
+  time: "t = \\dfrac{A \\times d}{Q}",
+  area: "A = \\dfrac{Q \\times t}{d}",
 };
 const OUTPUT_CATEGORY = { flow: "flow", time: "time", area: "area", depth: "length" };
 const DEFAULT_OUTPUT_UNIT = { flow: "gpm", time: "hr", area: "ac", depth: "in" };
@@ -46,7 +46,8 @@ function currentTarget() {
 function updateVisibility() {
   const target = currentTarget();
   Object.keys(FIELDS).forEach((key) => FIELDS[key].classList.toggle("field--hidden", key === target));
-  formulaDisplay.textContent = FORMULAS[target];
+  formulaDisplay.setAttribute("data-latex", FORMULAS[target]);
+  renderMathFormulas();
   populateUnitSelect(outputUnit, OUTPUT_CATEGORY[target], lastOutputUnit[target]);
 }
 

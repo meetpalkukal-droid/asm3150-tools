@@ -32,9 +32,9 @@ populateUnitSelect(areaUnit, "area", "ac");
 populateUnitSelect(depthUnit, "length", "in");
 
 const FORMULAS = {
-  depth: "d = V / A",
-  volume: "V = A × d",
-  area: "A = V / d",
+  depth: "d = \\dfrac{V}{A}",
+  volume: "V = A \\times d",
+  area: "A = \\dfrac{V}{d}",
 };
 
 const OUTPUT_CATEGORY = { depth: "length", volume: "volume", area: "area" };
@@ -52,7 +52,8 @@ function updateVisibility() {
   fieldArea.classList.toggle("field--hidden", target === "area");
   fieldDepth.classList.toggle("field--hidden", target === "depth");
 
-  formulaDisplay.textContent = FORMULAS[target];
+  formulaDisplay.setAttribute("data-latex", FORMULAS[target]);
+  renderMathFormulas();
 
   populateUnitSelect(outputUnit, OUTPUT_CATEGORY[target], lastOutputUnit[target]);
 }

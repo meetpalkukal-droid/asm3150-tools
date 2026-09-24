@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -39,7 +40,7 @@
 
   <section class="panel">
     <h2>Step 1 &mdash; Mass Water Content</h2>
-    <p class="formula-box">&theta;<sub>m</sub> = M<sub>w</sub> / M<sub>s</sub></p>
+    <p class="formula-box" data-latex="\theta_m = \dfrac{M_w}{M_s}">&theta;<sub>m</sub> = M<sub>w</sub> / M<sub>s</sub></p>
 
     <div class="toggle-row">
       <input type="checkbox" id="toggle-theta-m">
@@ -79,7 +80,7 @@
 
   <section class="panel">
     <h2>Step 2 &mdash; Volumetric Water Content</h2>
-    <p class="formula-box">&theta;<sub>v</sub> = &theta;<sub>m</sub> &times; &rho;<sub>b</sub> / &rho;<sub>w</sub></p>
+    <p class="formula-box" data-latex="\theta_v = \theta_m \times \dfrac{\rho_b}{\rho_w}">&theta;<sub>v</sub> = &theta;<sub>m</sub> &times; &rho;<sub>b</sub> / &rho;<sub>w</sub></p>
 
     <div class="toggle-row">
       <input type="checkbox" id="toggle-density">
@@ -122,7 +123,7 @@
 
   <section class="panel">
     <h2>Step 3 &mdash; Equivalent Depth of Water</h2>
-    <p class="formula-box">d = &theta;<sub>v</sub> &times; L</p>
+    <p class="formula-box" data-latex="d = \theta_v \times L">d = &theta;<sub>v</sub> &times; L</p>
 
     <div class="field">
       <label for="layer-depth">Soil layer depth (L)</label>
@@ -140,7 +141,7 @@
 
   <section class="panel">
     <h2>Step 4 &mdash; Irrigation Depth Needed</h2>
-    <p class="formula-box">Depth to add = (&theta;<sub>v, target</sub> &minus; &theta;<sub>v, current</sub>) &times; L</p>
+    <p class="formula-box" data-latex="\text{Depth to add} = (\theta_{v,\text{target}} - \theta_{v,\text{current}}) \times L">Depth to add = (&theta;<sub>v, target</sub> &minus; &theta;<sub>v, current</sub>) &times; L</p>
 
     <div class="field">
       <label for="target-theta-v">Target volumetric water content</label>
@@ -187,6 +188,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="soil-water-content-depth.js"></script>

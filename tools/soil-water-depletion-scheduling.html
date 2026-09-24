@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:0.9rem; }
@@ -103,7 +104,7 @@
       the depth of water needed to refill the root zone back to field capacity &mdash;
       i.e., how much to irrigate right now.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="AWC = \theta_{fc} - \theta_{wp} \qquad f_d = \dfrac{\theta_{fc} - \theta_v}{AWC} \qquad SWD = (\theta_{fc} - \theta_v) \times L \qquad TAW = AWC \times L">
       AWC = &theta;<sub>fc</sub> &minus; &theta;<sub>wp</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       f<sub>d</sub> = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) / AWC &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       SWD = (&theta;<sub>fc</sub> &minus; &theta;<sub>v</sub>) &times; L &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
@@ -122,6 +123,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="../assets/js/soil-data.js"></script>

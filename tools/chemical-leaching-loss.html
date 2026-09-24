@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
   .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
@@ -134,11 +135,11 @@
       an empirical factor relating CU to the fraction of infiltrated water lost to
       nonuniformity, assuming a 90%-adequacy, normally distributed application.
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="V_{dp1} = d_z A(1-F_1) \qquad V_{dp2} = \begin{cases} 0.95A(d_{LQ}-SWD) &amp; \text{if } d_{LQ} > SWD \\ 0 &amp; \text{otherwise} \end{cases}">
       V<sub>dp1</sub> = d<sub>z</sub>A(1&minus;F<sub>1</sub>) &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       V<sub>dp2</sub> = 0.95A(d<sub>LQ</sub>&minus;SWD) if d<sub>LQ</sub>&gt;SWD, else 0
     </p>
-    <p class="formula-box">
+    <p class="formula-box" data-latex="V_{dp} = V_{dp1}+V_{dp2} \qquad d_p = \dfrac{V_{dp}}{A} \qquad C_l = 0.226 \times C \times d_p">
       V<sub>dp</sub> = V<sub>dp1</sub>+V<sub>dp2</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       d<sub>p</sub> = V<sub>dp</sub>/A &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
       C<sub>l</sub> = 0.226 &times; C &times; d<sub>p</sub>
@@ -161,6 +162,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="chemical-leaching-loss.js"></script>

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -40,7 +41,7 @@
   <section class="panel">
     <h2>Bulk Density</h2>
 
-    <div class="formula-box" id="formula-display">&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub></div>
+    <div class="formula-box" id="formula-display" data-latex="\rho_b = \dfrac{M_s}{V_b}">&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub></div>
 
     <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
       <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
@@ -104,7 +105,7 @@
 
   <section class="panel">
     <h2>Porosity</h2>
-    <p class="formula-box">&phi; = (1 &minus; &rho;<sub>b</sub> / &rho;<sub>p</sub>) &times; 100%</p>
+    <p class="formula-box" data-latex="\phi = \left(1 - \dfrac{\rho_b}{\rho_p}\right) \times 100\%">&phi; = (1 &minus; &rho;<sub>b</sub> / &rho;<sub>p</sub>) &times; 100%</p>
 
     <div class="field">
       <label for="particle-density">Particle density (&rho;<sub>p</sub>)</label>
@@ -131,7 +132,7 @@
       Porosity (&phi;) is the fraction of that bulk volume made up of pores (voids that can
       hold air or water), calculated from bulk density and particle density:
     </p>
-    <p class="formula-box">&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp; &phi; = (1 &minus; &rho;<sub>b</sub> / &rho;<sub>p</sub>) &times; 100%</p>
+    <p class="formula-box" data-latex="\rho_b = \dfrac{M_s}{V_b} \qquad \phi = \left(1 - \dfrac{\rho_b}{\rho_p}\right) \times 100\%">&rho;<sub>b</sub> = M<sub>s</sub> / V<sub>b</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp; &phi; = (1 &minus; &rho;<sub>b</sub> / &rho;<sub>p</sub>) &times; 100%</p>
     <p>
       Higher bulk density means less pore space, which generally means less capacity to
       store water and more resistance to root growth &mdash; a common way to flag soil
@@ -152,6 +153,7 @@
   &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="../assets/js/site.js"></script>
 <script src="../assets/js/units.js"></script>
 <script src="bulk-density-porosity.js"></script>
