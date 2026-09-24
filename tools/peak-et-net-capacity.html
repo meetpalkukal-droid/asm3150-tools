@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peak Daily ET &amp; Net System Capacity Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
+  .warning-box {
+    background:#fdecec; border:1px solid #d9534f; border-radius:var(--radius);
+    padding:0.75rem 1rem; font-size:0.88rem; color:#7a1f1f; margin-top:0.75rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Peak Daily ET &amp; Net System Capacity Calculator</p>
+
+  <section class="page-intro">
+    <h1>Peak Daily ET &amp; Net System Capacity Calculator</h1>
+    <p>
+      Estimates how big a system needs to be &mdash; the question behind every pump and
+      pipe-sizing decision. Walks from your soil's allowable depletion, to a
+      general-estimate peak daily crop water use (Table 5.3), to the gross system
+      capacity a pump actually needs to deliver.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Step 1 &mdash; Allowable Depletion (optional helper)</h2>
+    <p class="formula-box">AD = AWC (in/ft) &times; root depth (ft) &times; allowable fraction depleted</p>
+    <div class="field">
+      <label for="awc-value">Available water capacity (AWC)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="awc-value" step="any" value="1.5">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in/ft</div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="root-depth">Root zone depth</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="root-depth" step="any" value="4">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">ft</div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fraction-depleted">Allowable fraction depleted</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="fraction-depleted" step="any" value="50">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+    <div class="result-box">
+      <div class="result-box__value" id="ad-result" style="font-size:1.3rem;">&mdash;</div>
+      <div class="result-box__label">Allowable depletion (AD) &mdash; used as the row in Table 5.3 below</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Step 2 &mdash; Peak Daily ET (Table 5.3)</h2>
+    <p class="note">
+      Table 5.3 (USDA-SCS, 1970) gives a general planning-level estimate of peak daily
+      crop ET, achieved about 70% of the time, based on allowable depletion and the
+      crop's maximum monthly ET. <strong>This is a different, simpler method than the
+      textbook's Example 5.7</strong>, which reads a probabilistic simulation result off
+      a location/crop-specific graph (Figure 5.11, for Eastern Colorado corn) &mdash; the
+      two methods will not give the same numeric answer for the same soil. Use local or
+      crop-simulation data instead of Table 5.3 whenever it's available.
+    </p>
+    <div class="field">
+      <label for="ad-input">Allowable depletion (AD)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="ad-input" step="any" value="3.0">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in</div>
+      </div>
+      <p class="note">Auto-filled from Step 1 above, or enter directly. Table 5.3 covers 1.0-6.0 in.</p>
+    </div>
+    <div class="field">
+      <label for="max-monthly-et">Maximum monthly crop ET</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="max-monthly-et" step="any" value="8">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in/mo</div>
+      </div>
+      <p class="note">Table 5.3 covers 5-12 in/mo.</p>
+    </div>
+    <div id="table53-warning"></div>
+    <div class="result-box">
+      <div class="result-box__value" id="etd-result" style="font-size:1.3rem;">&mdash;</div>
+      <div class="result-box__label">Peak daily ET (ET<sub>d</sub>) &mdash; used as net system capacity C<sub>n</sub> below</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Step 3 &mdash; Gross System Capacity</h2>
+    <p class="formula-box">C<sub>g</sub> = C<sub>n</sub> / [(E<sub>LQ</sub>/100%)(1&minus;D<sub>t</sub>/100%)]</p>
+    <div class="field">
+      <label for="cn-input">Net system capacity (C<sub>n</sub>)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="cn-input" step="any" value="0.30" readonly>
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in/d</div>
+      </div>
+      <p class="note">Auto-filled from Step 2's peak daily ET.</p>
+    </div>
+    <div class="field">
+      <label for="elq-input">Application efficiency of the low quarter (E<sub>LQ</sub>)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="elq-input" step="any" value="85">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="dt-input">System downtime (D<sub>t</sub>)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="dt-input" step="any" value="0">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Net system capacity (C<sub>n</sub>) is the rate of water supply needed to prevent
+      crop water stress during peak demand. Gross system capacity (C<sub>g</sub>) scales
+      that up to account for application inefficiency and planned system downtime.
+    </p>
+    <p class="note">
+      A useful conversion: 18.86 gpm/ac &asymp; 1 in/d (derived here from the same
+      precise acre-inch and gallon factors used throughout this site, rather than the
+      rounded constant).
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 5.7:</strong> A sandy loam soil (AWC=1.5 in/ft), 4-ft corn
+      root zone, 50% allowable depletion &rarr; AD = 3.0 in. From that point the textbook
+      reads C<sub>n</sub> &asymp; 0.22 in/d off Figure 5.11's probability chart &mdash; a
+      different (and not reproducible here) method than Table 5.3's general estimate.
+      The AD calculation in Step 1 above matches the book exactly.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="peak-et-net-capacity.js"></script>
+</body>
+</html>

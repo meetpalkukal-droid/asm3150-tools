@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemical Leaching Loss Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
+  .warning-box {
+    background:#fdecec; border:1px solid #d9534f; border-radius:var(--radius);
+    padding:0.75rem 1rem; font-size:0.88rem; color:#7a1f1f; margin-top:0.75rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Chemical Leaching Loss Calculator</p>
+
+  <section class="page-intro">
+    <h1>Chemical Leaching Loss Calculator</h1>
+    <p>
+      Estimates how much dissolved chemical (nitrate-N, for example) leaches below the
+      root zone in a single irrigation, from a catch-can uniformity test and a soil
+      water deficit &mdash; the kind of back-of-envelope check a grower or agronomist
+      would run before a fertigation event, or to explain a nitrate monitoring result.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="field">
+      <label for="dz-value">Mean depth infiltrated (d<sub>z</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="dz-value" step="any" value="2.0">
+        <select id="dz-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="area-value">Irrigated area (A)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="area-value" step="any" value="1">
+        <select id="area-unit"></select>
+      </div>
+      <p class="note">Results are reported per acre regardless of this value &mdash; it only matters if you want the total for a specific field size.</p>
+    </div>
+
+    <div class="field">
+      <label for="cu-value">Christiansen's uniformity coefficient (CU)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="cu-value" step="any" value="84">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+      <p class="note">From a catch-can test &mdash; see the Catch-Can Uniformity Calculator.</p>
+    </div>
+
+    <div id="f1-warning"></div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="toggle-dlq">
+      <label for="toggle-dlq">Enter the low-quarter depth (d<sub>LQ</sub>) directly instead of DU</label>
+    </div>
+
+    <div class="field" id="field-du">
+      <label for="du-value">Distribution uniformity (DU)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="du-value" step="any" value="75">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+
+    <div class="field field--hidden" id="field-dlq-direct">
+      <label for="dlq-value">Low-quarter depth (d<sub>LQ</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="dlq-value" step="any" value="1.5">
+        <select id="dlq-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="swd-value">Soil water deficit (SWD)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="swd-value" step="any" value="1.2">
+        <select id="swd-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="conc-value">Chemical concentration in leachate (C)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="conc-value" step="any" value="20">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">ppm</div>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 5.5
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Deep percolation &mdash; and whatever is dissolved in it &mdash; comes from two
+      sources: nonuniform infiltration (V<sub>dp1</sub>) and over-application beyond the
+      soil water deficit (V<sub>dp2</sub>). F<sub>1</sub> (interpolated from Table 5.1) is
+      an empirical factor relating CU to the fraction of infiltrated water lost to
+      nonuniformity, assuming a 90%-adequacy, normally distributed application.
+    </p>
+    <p class="formula-box">
+      V<sub>dp1</sub> = d<sub>z</sub>A(1&minus;F<sub>1</sub>) &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      V<sub>dp2</sub> = 0.95A(d<sub>LQ</sub>&minus;SWD) if d<sub>LQ</sub>&gt;SWD, else 0
+    </p>
+    <p class="formula-box">
+      V<sub>dp</sub> = V<sub>dp1</sub>+V<sub>dp2</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      d<sub>p</sub> = V<sub>dp</sub>/A &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      C<sub>l</sub> = 0.226 &times; C &times; d<sub>p</sub>
+    </p>
+    <p class="note">
+      Table 5.1 only tabulates F<sub>1</sub> for CU between 70 and 98. Outside that
+      range this tool will warn rather than guess by extrapolating.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 5.5:</strong> Using Example 5.1's field (d<sub>z</sub>=2.0
+      in, CU=84% &rarr; F<sub>1</sub>=0.71, d<sub>LQ</sub>=1.5 in) with SWD=1.2 in and
+      C=20 ppm: V<sub>dp1</sub>=0.58 ac-in, V<sub>dp2</sub>=0.29 ac-in, V<sub>dp</sub>=0.87
+      ac-in, d<sub>p</sub>=0.87 in, C<sub>l</sub>=3.9 lb/ac. Click "Load textbook Example
+      5.5" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="chemical-leaching-loss.js"></script>
+</body>
+</html>

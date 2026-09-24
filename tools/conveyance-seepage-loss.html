@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canal/Ditch Seepage Loss Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Canal/Ditch Seepage Loss Calculator</p>
+
+  <section class="page-intro">
+    <h1>Canal/Ditch Seepage Loss Calculator</h1>
+    <p>
+      Estimates how much water an unlined delivery ditch or canal loses over a season
+      to seepage and bank vegetation &mdash; the question a ditch rider or water-district
+      manager asks when deciding whether lining a reach of canal would pay for itself.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="field">
+      <label for="length-value">Ditch/canal length</label>
+      <div class="value-unit-pair">
+        <input type="number" id="length-value" step="any" value="1320">
+        <select id="length-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="wetted-value">Flow contact area (wetted perimeter) per unit length</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="wetted-value" step="any" value="2.5">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">ft&sup2;/ft</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="seepage-rate">Seepage loss rate</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="seepage-rate" step="any" value="1.4">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">ft&sup3;/ft&sup2;/d</div>
+      </div>
+      <p class="note">
+        Read this off Figure 5.8 (USDA-SCS, 1985) for your soil/lining type &mdash; e.g.
+        roughly 1.4 ft&sup3;/ft&sup2;/d for a loam soil. This tool doesn't embed that
+        figure since it's a graphical range, not a table, but typical unlined-canal
+        rates run from under 0.5 (fine-textured, high-fines soils) to over 3
+        ft&sup3;/ft&sup2;/d (coarse, gravelly soils).
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="flow-value">Canal flow rate (Q)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="flow-value" step="any" value="2.5">
+        <select id="flow-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="veg-pct">Vegetation loss rate</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="veg-pct" step="any" value="1">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">% of flow per mile</div>
+      </div>
+      <p class="note">Typical range is 0.5-1.0% loss per mile for ditch-side vegetation.</p>
+    </div>
+
+    <div class="field">
+      <label for="days-value">Irrigation season length</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="days-value" step="any" value="180">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">days</div>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 5.6
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Seepage loss depends on the wetted area of the channel (its length times the
+      wetted perimeter of its cross-section) and a soil-dependent seepage rate.
+      Vegetative loss is estimated separately as a percentage of the flow, per mile of
+      channel.
+    </p>
+    <p class="formula-box">
+      Seepage loss = (wetted perimeter &times; length) &times; seepage rate &times; days
+    </p>
+    <p class="formula-box">
+      Vegetative loss = (% per mile) &times; Q &times; (length / 5280 ft) &times; days
+    </p>
+    <p class="note">
+      This tool carries full precision through the flow-rate unit conversion (Q in cfs
+      &rarr; ac-in/hr), rather than the textbook's convenient approximation of 1 cfs
+      &asymp; 1 ac-in/hr, so results may differ from the book by roughly 1%.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 5.6:</strong> A 1,320-ft unlined ditch, 2.5 ft&sup2;/ft
+      wetted perimeter, loam soil (1.4 ft&sup3;/ft&sup2;/d), carrying 2.5 cfs for 180
+      d/yr, with 1% vegetative loss per mile: seepage loss &asymp; 19 ac-ft, vegetative
+      loss &asymp; 2.3 ac-ft, total &asymp; 21.3 ac-ft/yr. Click "Load textbook Example
+      5.6" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="conveyance-seepage-loss.js"></script>
+</body>
+</html>

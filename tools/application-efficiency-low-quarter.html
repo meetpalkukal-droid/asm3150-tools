@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Efficiency of the Low Quarter (ELQ) Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Application Efficiency of the Low Quarter Calculator</p>
+
+  <section class="page-intro">
+    <h1>Application Efficiency of the Low Quarter (ELQ) Calculator</h1>
+    <p>
+      Answers "how much of the water I paid to pump actually ended up usable by the
+      crop?" &mdash; combining uniformity (DU), soil water deficit, and runoff into one
+      efficiency number, the way an irrigation auditor or NRCS/extension evaluator would
+      after a field uniformity test.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="field">
+      <label for="recovery-mode">Runoff recovery</label>
+      <select id="recovery-mode" style="max-width:360px;">
+        <option value="none">None (typical sprinkler/microirrigation)</option>
+        <option value="closed">Closed system (runoff reapplied to the same field)</option>
+        <option value="open">Open system (runoff reapplied to a different field)</option>
+      </select>
+      <p class="note">Most sprinkler and microirrigation systems have no runoff recovery. This mostly matters for surface (furrow/border) systems with tailwater return.</p>
+    </div>
+
+    <div class="field">
+      <label for="dg-value">Gross depth applied from the source (d<sub>g</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="dg-value" step="any" value="2.2">
+        <select id="dg-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="dr-value">Runoff depth (d<sub>r</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="dr-value" step="any" value="0">
+        <select id="dr-unit"></select>
+      </div>
+    </div>
+
+    <div class="field field--hidden" id="field-rt">
+      <label for="rt-value">Return ratio (R<sub>t</sub>) &mdash; fraction of runoff that's recovered and reused</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="rt-value" step="any" value="80">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="dz-value">Mean depth infiltrated (d<sub>z</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="dz-value" step="any" value="2.0">
+        <select id="dz-unit"></select>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="toggle-dlq">
+      <label for="toggle-dlq">Enter the low-quarter depth (d<sub>LQ</sub>) directly instead of DU</label>
+    </div>
+
+    <div class="field" id="field-du">
+      <label for="du-value">Distribution uniformity (DU)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="du-value" step="any" value="75">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+      <p class="note">From a catch-can test &mdash; see the Catch-Can Uniformity Calculator.</p>
+    </div>
+
+    <div class="field field--hidden" id="field-dlq-direct">
+      <label for="dlq-value">Low-quarter depth (d<sub>LQ</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="dlq-value" step="any" value="1.5">
+        <select id="dlq-unit"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="swd-value">Soil water deficit (SWD)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="swd-value" step="any" value="1.6">
+        <select id="swd-unit"></select>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example-52">
+        Load textbook Example 5.2
+      </button>
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem; margin-left:0.5rem;" id="load-example-53">
+        Load textbook Example 5.3
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Deep percolation happens for two different reasons: the field isn't watered
+      perfectly uniformly (nonuniformity), and/or more water is applied on average than
+      the root zone can hold (excessive application). The low-quarter depth
+      (d<sub>LQ</sub>) &mdash; the average depth received by the driest 25% of the field
+      &mdash; is used as the practical "management depth": irrigating to d<sub>LQ</sub>
+      results in about 90% of the field being adequately watered.
+    </p>
+    <p class="formula-box">
+      d<sub>ev</sub> = d<sub>g</sub> &minus; d<sub>z</sub> &minus; d<sub>r</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      d<sub>LQ</sub> = DU &times; d<sub>z</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      d<sub>e</sub> = min(d<sub>LQ</sub>, SWD) &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      E<sub>LQ</sub> = 100% &times; d<sub>e</sub> / d<sub>a</sub>
+    </p>
+    <p>
+      If d<sub>LQ</sub> &lt; SWD, the field isn't even fully refilled at the low quarter
+      &mdash; the effective depth is limited by nonuniformity, not over-application. If
+      d<sub>LQ</sub> &gt; SWD, the low quarter already exceeds what the root zone can
+      hold &mdash; the effective depth is capped by SWD, and the excess is deep
+      percolation from over-application. Either way, E<sub>LQ</sub> tells you what
+      fraction of the water pulled from the source is doing useful work for the crop.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 5.2:</strong> d<sub>z</sub>=2.0 in, DU=0.75, d<sub>a</sub>=2.2
+      in, no runoff, SWD=1.6 in &rarr; d<sub>LQ</sub>=1.5 in (&lt; SWD), d<sub>e</sub>=1.5 in,
+      E<sub>LQ</sub>=68%.<br>
+      <strong>Example 5.3</strong> repeats this with SWD=1.2 in instead &rarr; now
+      d<sub>LQ</sub> &gt; SWD, so d<sub>e</sub>=1.2 in and E<sub>LQ</sub>=55%.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="application-efficiency-low-quarter.js"></script>
+</body>
+</html>

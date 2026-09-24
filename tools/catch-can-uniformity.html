@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catch-Can Uniformity Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
+  textarea#paste-input {
+    width:100%; min-height:120px; font-family:ui-monospace,Consolas,monospace; font-size:0.85rem;
+    padding:0.6rem; border:1px solid var(--border); border-radius:6px; resize:vertical;
+  }
+  .can-table-wrap { max-height:420px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; }
+  table.can-table { border-collapse:collapse; width:100%; font-size:0.85rem; }
+  table.can-table th, table.can-table td { padding:0.35rem 0.5rem; border-bottom:1px solid var(--border); text-align:left; }
+  table.can-table thead th { position:sticky; top:0; background:var(--ui-black); color:var(--ui-white); z-index:1; }
+  table.can-table input { width:100%; padding:0.25rem 0.35rem; font-size:0.85rem; }
+  table.can-table td.row-remove { text-align:center; }
+  .row-remove button {
+    background:none; border:1px solid var(--border); border-radius:5px; color:var(--text-muted);
+    cursor:pointer; width:1.8rem; height:1.8rem;
+  }
+  .row-remove button:hover { background:#fdecec; border-color:#d9534f; color:#d9534f; }
+  .warning-box {
+    background:#fdecec; border:1px solid #d9534f; border-radius:var(--radius);
+    padding:0.75rem 1rem; font-size:0.88rem; color:#7a1f1f; margin-top:0.75rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Catch-Can Uniformity Calculator</p>
+
+  <section class="page-intro">
+    <h1>Catch-Can Uniformity Calculator</h1>
+    <p>
+      Turns a field catch-can (or rain gauge) test into the three uniformity coefficients
+      irrigation practitioners actually use to judge a sprinkler or center-pivot system:
+      Christiansen's CU, low-quarter Distribution Uniformity (DU), and the
+      distance-weighted Heermann-Hein CU<sub>H</sub> used for center pivots. Paste in your
+      can readings, or enter them by hand.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Enter Catch-Can Data</h2>
+    <p class="note">
+      Each can needs a catch amount. If your test is on a <strong>center pivot</strong>
+      (cans placed along a radial line), also enter each can's distance from the pivot
+      point &mdash; this is what CU<sub>H</sub> needs to properly weight the area each can
+      represents. For a lateral, solid-set, or hand-move test where every can represents
+      equal area, leave distance blank (it will default to 1 for every can, which makes
+      CU<sub>H</sub> equal to CU).
+    </p>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="volume-mode">
+      <label for="volume-mode">Cans measured in volume (mL), not depth &mdash; convert using catch-can throat area</label>
+    </div>
+
+    <div class="field field--hidden" id="throat-area-field">
+      <label for="throat-area">Catch-can throat (opening) area</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="throat-area" step="any" value="28.27">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in&sup2;</div>
+      </div>
+      <p class="note">A standard 6-in diameter catch can has a throat area of &pi;(3 in)&sup2; = 28.27 in&sup2;.</p>
+    </div>
+
+    <div class="field">
+      <label for="paste-input">Paste data (one can per line): <code>distance, catch</code> or just <code>catch</code></label>
+      <textarea id="paste-input" placeholder="Example (no distance, depth in inches):&#10;1.2&#10;2.6&#10;1.8&#10;...&#10;&#10;Or with distance for a pivot test:&#10;60, 0.34&#10;70, 0.36&#10;..."></textarea>
+      <p style="margin-top:0.5rem;">
+        <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.45rem 0.9rem; font-size:0.85rem;" id="parse-btn">
+          Load into table below
+        </button>
+      </p>
+    </div>
+
+    <div class="can-table-wrap">
+      <table class="can-table" id="can-table">
+        <thead>
+          <tr><th>Can #</th><th>Distance from pivot (optional)</th><th id="catch-col-header">Catch (in)</th><th></th></tr>
+        </thead>
+        <tbody id="can-table-body"></tbody>
+      </table>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-top:0.75rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.45rem 0.9rem; font-size:0.85rem;" id="add-row">
+        + Add one can
+      </button>
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.45rem 0.9rem; font-size:0.85rem; background:var(--ui-silver);" id="clear-rows">
+        Clear all
+      </button>
+      <span style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem;">
+        <label for="row-count-input" style="margin:0; font-weight:600;">Set number of cans:</label>
+        <input type="number" id="row-count-input" min="1" step="1" value="20" style="width:5rem;">
+        <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.45rem 0.9rem; font-size:0.85rem;" id="set-row-count">
+          Apply
+        </button>
+      </span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Results</h2>
+    <div id="warning-container"></div>
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example-51">
+        Load textbook Example 5.1 (20 cans)
+      </button>
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem; margin-left:0.5rem;" id="load-example-xlsx">
+        Load center-pivot radial test (59 cans)
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      <strong>DU (low-quarter distribution uniformity)</strong> compares the average of the
+      driest 25% of the field to the field average &mdash; it answers "how bad is it where
+      it's worst?"
+    </p>
+    <p class="formula-box">DU = d<sub>LQ</sub> / d<sub>z</sub> &times; 100%</p>
+    <p>
+      <strong>CU (Christiansen's uniformity coefficient)</strong> is based on the average
+      deviation of every can from the mean &mdash; a more holistic, less worst-case view.
+    </p>
+    <p class="formula-box">CU = 100% &times; (1 &minus; &Sigma|d<sub>i</sub> &minus; d<sub>z</sub>| / (n &times; d<sub>z</sub>))</p>
+    <p>
+      <strong>CU<sub>H</sub> (Heermann-Hein, for center pivots)</strong> weights each can's
+      deviation by its distance from the pivot, since a can far out represents far more
+      irrigated area (a bigger annulus) than one close in.
+    </p>
+    <p class="formula-box">
+      CU<sub>H</sub> = 100% &times; (1 &minus; &Sigma S<sub>i</sub>|d<sub>i</sub> &minus; d<sub>z</sub><sup>*</sup>| / &Sigma S<sub>i</sub>d<sub>i</sub>)
+      &nbsp;&nbsp;where&nbsp;&nbsp; d<sub>z</sub><sup>*</sup> = &Sigma d<sub>i</sub>S<sub>i</sub> / &Sigma S<sub>i</sub>
+    </p>
+    <p>
+      Rules of thumb from the textbook: for moved-lateral sprinklers, CU &ge; 80 (or DU &ge;
+      0.70) is the usual minimum acceptable uniformity; for center pivots, CU<sub>H</sub> &ge;
+      90 is often the target; for microirrigation, DU &ge; 0.80 is recommended.
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 5.1:</strong> 20 catch cans (no distance weighting, since
+      every can represents equal area) give DU = 0.75 and CU = 84%. Click "Load textbook
+      Example 5.1" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="catch-can-uniformity.js"></script>
+</body>
+</html>

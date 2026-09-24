@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheduling Coefficient Calculator &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Scheduling Coefficient Calculator</p>
+
+  <section class="page-intro">
+    <h1>Scheduling Coefficient Calculator</h1>
+    <p>
+      For turf and landscape sprinkler systems: figures out how much longer a system
+      needs to run than a "perfectly uniform" system would, so that the driest 25% of
+      the lawn still gets adequately watered. The everyday question this answers: "my
+      controller says 20 minutes per zone &mdash; is that actually enough?"
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="field">
+      <label for="du-value">Distribution uniformity (DU)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="du-value" step="any" value="80">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+      <p class="note">From a catch-can test &mdash; see the Catch-Can Uniformity Calculator.</p>
+    </div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-actual" value="actual" checked>
+        <label for="solve-actual">Actual run time needed</label>
+
+        <input type="radio" name="solve-for" id="solve-ideal" value="ideal">
+        <label for="solve-ideal">Run time if uniformity were perfect</label>
+      </div>
+    </fieldset>
+
+    <div class="field" id="field-ideal">
+      <label for="ideal-time">Run time if uniformity were perfect</label>
+      <div class="value-unit-pair">
+        <input type="number" id="ideal-time" step="any" value="2">
+        <select id="ideal-unit"></select>
+      </div>
+      <p class="note">
+        This is simply desired depth &divide; application rate &mdash; e.g. 0.5 in at
+        0.25 in/hr = 2 hr.
+      </p>
+    </div>
+
+    <div class="field field--hidden" id="field-actual">
+      <label for="actual-time">Actual run time</label>
+      <div class="value-unit-pair">
+        <input type="number" id="actual-time" step="any" value="5">
+        <select id="actual-unit"></select>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">&mdash;</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+      <div class="result-box__factor" id="result-factor"></div>
+    </div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load textbook Example 5.4
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      The scheduling coefficient (SC) is simply the inverse of DU. If DU = 0.80, SC =
+      1.25 &mdash; the system needs to run 25% longer than a perfectly uniform system
+      would, so that the driest spots (the low quarter) still receive the target depth.
+    </p>
+    <p class="formula-box">
+      d<sub>LQ</sub> = DU &times; d<sub>z</sub> &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      SC = d<sub>z</sub> / d<sub>LQ</sub> = 1 / DU &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+      actual time = ideal time &times; SC
+    </p>
+    <div class="example-box">
+      <strong>Textbook Example 5.4:</strong> A sod farm system has DU=0.80, d<sub>z</sub>=1.5
+      in, and ran for 5 h. SC = 1/0.80 = 1.25, d<sub>LQ</sub>=1.2 in. With perfect
+      uniformity, the same result would have taken 5 h &divide; 1.25 = 4 h. Click "Load
+      textbook Example 5.4" above (solving for the perfect-uniformity time) to see it
+      worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="scheduling-coefficient.js"></script>
+</body>
+</html>
