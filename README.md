@@ -62,6 +62,14 @@ the folder with any static file server.
 - Peak Daily ET & Net System Capacity, Table 5.3 (`peak-et-net-capacity`)
 - Gross Capacity & Farm Well Discharge (`farm-well-discharge`)
 
+**Irrigation Scheduling (sensor-based, supplemental — not from the textbook)**
+- Soil Moisture Sensor Irrigation Scheduling (`soil-sensor-irrigation-scheduling`) —
+  turns readings from any number of soil moisture sensors into a when/how-much
+  decision, using the depth-weighted "midpoint method" (see
+  [USU Extension](https://extension.usu.edu/crops/tools/soil-sensor-setup)). Built from
+  a class slide, not the textbook; deliberately has no soil-type or crop-type lookup —
+  every parameter is entered directly.
+
 **External resources**
 - Link out to the AgriMet real-time crop water use tool
 
@@ -86,11 +94,11 @@ two — there's no separate build/deploy step.
 
 ## Source material
 
-- `asabe textbook.pdf` and the `.xlsx` spreadsheets in the repo root are course source
-  material (the textbook and a catch-can uniformity dataset) used to build and verify
-  the tools. They're excluded from version control (see `.gitignore`) since they're not
-  part of the published site and the textbook is copyrighted — don't remove them from
-  `.gitignore` and push them.
+- `asabe textbook.pdf`, the `.xlsx` spreadsheets, and any `.pptx` slides in the repo
+  root are course source material (the textbook, a catch-can uniformity dataset, and
+  class slides) used to build and verify the tools. They're excluded from version
+  control (see `.gitignore`) since they're not part of the published site and the
+  textbook is copyrighted — don't remove them from `.gitignore` and push them.
 - Formulas, table values, and worked examples are cited to *Irrigation Systems
   Management* (Eisenhauer, Martin, Heeren, & Hoffman, 2021, ASABE, CC BY-NC-ND 4.0) by
   chapter/example/equation number in each tool's "About this calculator" section.

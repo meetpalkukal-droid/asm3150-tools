@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soil Moisture Sensor Irrigation Scheduling &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:0.9rem; }
+  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
+  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
+  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
+  .sensor-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr 1fr 1fr 2.2rem;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .sensor-row--single-fc { grid-template-columns: 3rem 1fr 1fr 2.2rem; }
+  .sensor-row__label { font-weight: 700; color: var(--text-muted); font-size: 0.85rem; }
+  .sensor-row input { width: 100%; }
+  .sensor-header {
+    display: grid;
+    grid-template-columns: 3rem 1fr 1fr 1fr 2.2rem;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .sensor-header--single-fc { grid-template-columns: 3rem 1fr 1fr 2.2rem; }
+  .row-remove button {
+    background:none; border:1px solid var(--border); border-radius:6px; color:var(--text-muted);
+    cursor:pointer; height:2.2rem; width: 2.2rem;
+  }
+  .row-remove button:hover { background:#fdecec; border-color:#d9534f; color:#d9534f; }
+  .warning-box {
+    background:#fdecec; border:1px solid #d9534f; border-radius:var(--radius);
+    padding:0.9rem 1.1rem; font-size:0.95rem; color:#7a1f1f; margin-bottom:1rem; font-weight:700;
+  }
+  .ok-box {
+    background:#eef7ec; border:1px solid #4c8c4a; border-radius:var(--radius);
+    padding:0.9rem 1.1rem; font-size:0.95rem; color:#2c5a2a; margin-bottom:1rem; font-weight:700;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Soil Moisture Sensor Irrigation Scheduling</p>
+
+  <section class="page-intro">
+    <h1>Soil Moisture Sensor Irrigation Scheduling</h1>
+    <p>
+      Turns a set of soil moisture sensor readings into an irrigation decision &mdash;
+      <strong>when</strong> to irrigate and <strong>how much</strong> &mdash; the way a
+      grower or crop consultant actually uses a probe with sensors at a few depths.
+      Works with any number of sensors at any depths; nothing here depends on looking up
+      a soil type or crop from a table &mdash; every parameter (field capacity, available
+      water capacity, allowable depletion) is something you enter directly from your own
+      sensor calibration, lab data, or best estimate.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Sensors &amp; Readings</h2>
+
+    <div class="field" style="max-width:280px;">
+      <label for="root-zone-depth">Root zone / profile depth</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="root-zone-depth" step="any" value="24">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in</div>
+      </div>
+      <p class="note">The bottom boundary of the deepest sensor's zone. Defaults to the deepest sensor's own depth.</p>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="single-fc-toggle">
+      <label for="single-fc-toggle">Use one field-capacity value for every depth, instead of a reading per sensor</label>
+    </div>
+    <p class="note" style="margin-top:-0.5rem;">
+      Leave unchecked to enter field capacity as a reading from each sensor &mdash; e.g.
+      what the sensors read a day or two after a saturating rain or irrigation, once
+      drainage has mostly stopped (the standard way to field-calibrate field capacity
+      in place, rather than looking it up).
+    </p>
+
+    <div class="field field--hidden" id="field-single-fc" style="max-width:220px;">
+      <label for="single-fc-value">Field capacity (all depths)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="single-fc-value" step="any" value="30">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+    </div>
+
+    <div class="sensor-header" id="sensor-header">
+      <div></div><div>Depth</div><div>Field capacity</div><div>Current reading</div><div></div>
+    </div>
+    <div id="sensors-container"></div>
+    <p>
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.45rem 0.9rem; font-size:0.85rem;" id="add-sensor">
+        + Add sensor
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>2. Available Water &amp; Trigger Point</h2>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">I know...</legend>
+      <div class="solve-for" id="awc-mode-group">
+        <input type="radio" name="awc-mode" id="mode-awc" value="awc" checked>
+        <label for="mode-awc">Available water capacity (per ft)</label>
+
+        <input type="radio" name="awc-mode" id="mode-pwp" value="pwp">
+        <label for="mode-pwp">Permanent wilting point (directly)</label>
+      </div>
+    </fieldset>
+
+    <div class="field" id="field-awc" style="max-width:220px;">
+      <label for="awc-per-ft">Available water capacity</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="awc-per-ft" step="any" value="2.1">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in/ft</div>
+      </div>
+      <p class="note">An estimate from lab texture data or experience &mdash; not looked up from a soil-type table here.</p>
+    </div>
+
+    <div class="field field--hidden" id="field-pwp" style="max-width:220px;">
+      <label for="pwp-value">Permanent wilting point (whole profile)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="pwp-value" step="any" value="3.5">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in</div>
+      </div>
+    </div>
+
+    <div class="field" style="max-width:220px;">
+      <label for="mad-pct">Management allowed depletion (MAD)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="mad-pct" step="any" value="50">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">% of AWC</div>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="awc-stats-grid"></div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Scheduling Decision</h2>
+
+    <div class="field" style="max-width:220px;">
+      <label for="et-rate">Daily water use rate (optional)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="et-rate" step="any" placeholder="e.g. 0.25">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in/d</div>
+      </div>
+      <p class="note">If given, estimates how many days the remaining buffer will last.</p>
+    </div>
+
+    <div class="field" style="max-width:220px;">
+      <label for="app-efficiency">Application efficiency (optional)</label>
+      <div class="value-unit-pair" style="grid-template-columns: 1fr auto;">
+        <input type="number" id="app-efficiency" step="any" placeholder="e.g. 85">
+        <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">%</div>
+      </div>
+      <p class="note">If given, converts the net depth needed into a gross depth to run the system for (see the E<sub>LQ</sub> calculator).</p>
+    </div>
+
+    <div id="decision-banner"></div>
+    <div class="stats-grid" id="decision-stats-grid"></div>
+
+    <p style="margin-top:1.25rem;">
+      <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="load-example">
+        Load slide example (spring vs. now)
+      </button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Each sensor's reading is assumed to represent the soil halfway to its neighboring
+      sensors &mdash; the standard "midpoint method" for turning point readings into a
+      profile total (see
+      <a href="https://extension.usu.edu/crops/tools/soil-sensor-setup" target="_blank" rel="noopener">USU Extension's soil sensor setup guide</a>).
+      The shallowest sensor's zone extends up to the surface; the deepest sensor's zone
+      extends down to the root zone depth you set above.
+    </p>
+    <p class="formula-box" data-latex="\text{thickness}_i = \text{midpoint}(d_{i-1}, d_i) \ \text{to} \ \text{midpoint}(d_i, d_{i+1})">
+      thickness_i = midpoint(d_(i-1), d_i) to midpoint(d_i, d_(i+1))
+    </p>
+    <p>
+      Multiplying each sensor's water content by its zone's thickness and summing gives
+      the total water in the profile at that moment:
+    </p>
+    <p class="formula-box" data-latex="D_{total} = \sum_i \theta_i \times \text{thickness}_i">
+      D_total = sum(theta_i x thickness_i)
+    </p>
+    <p>
+      The trigger (refill point) is the field-capacity total minus the allowable
+      depletion; once the current total drops to or below it, it's time to irrigate.
+      The depth to apply is simply what's needed to bring the profile back to field
+      capacity:
+    </p>
+    <p class="formula-box" data-latex="\text{Refill point} = FC - MAD \qquad \text{Depth to apply} = FC - D_{current}">
+      Refill point = FC - MAD &nbsp;&nbsp;&mdash;&nbsp;&nbsp; Depth to apply = FC - D_current
+    </p>
+    <p class="note">
+      A technical note on precision: the absolute profile totals (field capacity,
+      current water) depend on exactly how zone thicknesses are assigned, so two
+      reasonable conventions can give slightly different absolute numbers. The
+      <em>differences</em> that actually drive the schedule &mdash; depth to apply, and
+      remaining buffer before the trigger &mdash; are not sensitive to that choice, as
+      long as it's applied consistently to every reading (verified directly against the
+      worked example below).
+    </p>
+    <div class="example-box">
+      <strong>Worked example (class slide):</strong> A 2-ft root zone in a silt loam
+      soil, sensors at 6, 12, and 24 in. After a heavy spring rain (field capacity):
+      32%, 29%, 34%. Current readings: 24%, 27%, 29%. AWC &asymp; 2.1 in/ft (4.2 in
+      total), MAD = 50% &rarr; allowable depletion = 2.1 in. Depth needed to return to
+      field capacity &asymp; 1.2 in; remaining usable water before the trigger &asymp;
+      0.9 in. Click "Load slide example" above to see it worked through.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="soil-sensor-irrigation-scheduling.js"></script>
+</body>
+</html>
