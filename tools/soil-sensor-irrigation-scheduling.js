@@ -13,6 +13,9 @@
 // MAD = MAD% x AWC       (management allowed depletion)
 // Irrigate when SWD >= MAD - shown as a direct bar-for-bar comparison of the
 // two quantities rather than collapsing them into a single threshold number.
+//
+// Current moisture (per sensor) is a slider bounded by that sensor's own PWP and
+// FC, since theta_v can only physically fall between those two limits.
 
 const rootZoneDepthInput = document.getElementById("root-zone-depth");
 
@@ -30,9 +33,12 @@ const sensorsContainer = document.getElementById("sensors-container");
 
 const awcStatsGrid = document.getElementById("awc-stats-grid");
 const madPct = document.getElementById("mad-pct");
+const madReadout = document.getElementById("mad-readout");
 
 const etRate = document.getElementById("et-rate");
+const etReadout = document.getElementById("et-readout");
 const appEfficiency = document.getElementById("app-efficiency");
+const efficiencyReadout = document.getElementById("efficiency-readout");
 const decisionBanner = document.getElementById("decision-banner");
 const decisionStatsGrid = document.getElementById("decision-stats-grid");
 
@@ -42,12 +48,12 @@ const swdMadChart = document.getElementById("swd-mad-chart");
 populateSoilTextureSelect(pwpTextureSelect, false);
 
 let sensors = [
-  { depth: 6, fc: 30, pwp: 15, current: 20 },
-  { depth: 12, fc: 30, pwp: 15, current: 20 },
-  { depth: 24, fc: 30, pwp: 15, current: 20 },
+  { depth: 6, fc: 30, pwp: 15, current: 24 },
+  { depth: 12, fc: 30, pwp: 15, current: 24 },
+  { depth: 24, fc: 30, pwp: 15, current: 24 },
 ];
 
-const COL_LABELS = { depth: "Depth", fc: "Field capacity", pwp: "Wilting point", current: "Current reading" };
+const COL_LABELS = { depth: "Depth", fc: "Field capacity", pwp: "Wilting point", current: "Current moisture" };
 
 function pwpMode() {
   return document.querySelector('input[name="pwp-mode"]:checked').value;
@@ -66,9 +72,26 @@ function tile(value, label, primary) {
     value + '</div><div class="stat-tile__label">' + label + '</div></div>';
 }
 
+function getFcValues() {
+  return singleFcToggle.checked
+    ? sensors.map(() => parseFloat(singleFcValue.value))
+    : sensors.map((s) => s.fc);
+}
+
+function getPwpValues() {
+  const mode = pwpMode();
+  if (mode === "per-sensor") return sensors.map((s) => s.pwp);
+  if (mode === "single") return sensors.map(() => parseFloat(singlePwpValue.value));
+  const t = soilTextureByKey(pwpTextureSelect.value);
+  const val = t ? t.wp * 100 : NaN;
+  return sensors.map(() => val);
+}
+
 function renderSensors() {
   const cols = visibleColumns();
   const gridCols = "3rem repeat(" + cols.length + ", 1fr) 2.2rem";
+  const fcValues = getFcValues();
+  const pwpValues = getPwpValues();
 
   sensorHeader.style.gridTemplateColumns = gridCols;
   sensorHeader.innerHTML = "<div></div>" + cols.map((c) => "<div>" + COL_LABELS[c] + "</div>").join("") + "<div></div>";
@@ -81,16 +104,36 @@ function renderSensors() {
 
     let html = '<div class="sensor-row__label">S' + (i + 1) + "</div>";
     cols.forEach((c) => {
-      html += '<div><input type="number" step="any" class="sensor-' + c + '" value="' + s[c] + '"></div>';
+      if (c === "current") {
+        const lo = Math.min(pwpValues[i], fcValues[i]);
+        const hi = Math.max(pwpValues[i], fcValues[i]);
+        const val = isNaN(s.current) ? lo : Math.min(Math.max(s.current, lo), hi);
+        html += '<div class="sensor-current-cell">' +
+          '<div class="slider-readout" id="current-readout-' + i + '"><em>&theta;</em><sub>v</sub> = ' + (isNaN(val) ? "?" : val.toFixed(1)) + '%</div>' +
+          '<input type="range" class="sensor-current" step="0.1" min="' + lo + '" max="' + hi + '" value="' + val + '"></div>';
+      } else {
+        html += '<div><input type="number" step="any" class="sensor-' + c + '" value="' + s[c] + '"></div>';
+      }
     });
     html += '<div class="row-remove"><button type="button" title="Remove sensor">&times;</button></div>';
     row.innerHTML = html;
 
     cols.forEach((c) => {
-      row.querySelector(".sensor-" + c).addEventListener("input", (e) => {
-        sensors[i][c] = parseFloat(e.target.value);
-        calculate();
-      });
+      if (c === "current") {
+        const slider = row.querySelector(".sensor-current");
+        const readout = row.querySelector("#current-readout-" + i);
+        slider.addEventListener("input", (e) => {
+          sensors[i].current = parseFloat(e.target.value);
+          readout.innerHTML = "<em>θ</em><sub>v</sub> = " + sensors[i].current.toFixed(1) + "%";
+          calculate();
+        });
+      } else {
+        row.querySelector(".sensor-" + c).addEventListener("input", (e) => {
+          sensors[i][c] = parseFloat(e.target.value);
+          if (c === "fc" || c === "pwp") syncCurrentSliderBounds();
+          calculate();
+        });
+      }
     });
     row.querySelector(".row-remove button").addEventListener("click", () => {
       if (sensors.length <= 1) return;
@@ -103,13 +146,36 @@ function renderSensors() {
   });
 }
 
+// Keeps each current-moisture slider's min/max in sync with the sensor's FC/PWP
+// without rebuilding the DOM (so dragging a slider doesn't get interrupted).
+function syncCurrentSliderBounds() {
+  const fcValues = getFcValues();
+  const pwpValues = getPwpValues();
+  const sliders = sensorsContainer.querySelectorAll(".sensor-current");
+  sliders.forEach((slider, i) => {
+    const lo = Math.min(pwpValues[i], fcValues[i]);
+    const hi = Math.max(pwpValues[i], fcValues[i]);
+    if (isNaN(lo) || isNaN(hi)) return;
+    slider.min = lo;
+    slider.max = hi;
+    let val = parseFloat(slider.value);
+    if (isNaN(val) || val < lo || val > hi) {
+      val = Math.min(Math.max(isNaN(val) ? lo : val, lo), hi);
+      slider.value = val;
+      sensors[i].current = val;
+    }
+    const readout = document.getElementById("current-readout-" + i);
+    if (readout) readout.innerHTML = "<em>θ</em><sub>v</sub> = " + val.toFixed(1) + "%";
+  });
+}
+
 document.getElementById("add-sensor").addEventListener("click", () => {
   const last = sensors[sensors.length - 1];
   sensors.push({
     depth: (last ? last.depth : 0) + 6,
     fc: last ? last.fc : 30,
     pwp: last ? last.pwp : 15,
-    current: last ? last.current : 20,
+    current: last ? last.current : 24,
   });
   renderSensors();
   calculate();
@@ -130,12 +196,14 @@ document.querySelectorAll('input[name="pwp-mode"]').forEach((r) =>
     calculate();
   })
 );
-pwpTextureSelect.addEventListener("change", calculate);
+pwpTextureSelect.addEventListener("change", () => { syncCurrentSliderBounds(); calculate(); });
+singleFcValue.addEventListener("input", () => { syncCurrentSliderBounds(); calculate(); });
+singlePwpValue.addEventListener("input", () => { syncCurrentSliderBounds(); calculate(); });
 
 // Returns {thicknesses, warning}; thicknesses is indexed the same as `sensors`.
 function computeZoneThicknesses(rootZoneDepth) {
   const indexed = sensors.map((s, i) => ({ ...s, i })).filter((s) => !isNaN(s.depth));
-  if (indexed.length === 0) return { thicknesses: [], warning: null };
+  if (indexed.length === 0) return { thicknesses: [], zones: [], warning: null };
   const sorted = [...indexed].sort((a, b) => a.depth - b.depth);
 
   let warning = null;
@@ -144,48 +212,35 @@ function computeZoneThicknesses(rootZoneDepth) {
   }
 
   const thicknesses = new Array(sensors.length).fill(0);
+  const zones = []; // [{i, top, bottom}] in depth-sorted order, for labeling
   sorted.forEach((s, pos) => {
     const top = pos === 0 ? 0 : (sorted[pos - 1].depth + s.depth) / 2;
     const bottom = pos === sorted.length - 1 ? rootZoneDepth : (s.depth + sorted[pos + 1].depth) / 2;
     thicknesses[s.i] = Math.max(0, bottom - top);
+    zones.push({ i: s.i, top: Math.max(0, top), bottom: Math.max(0, bottom) });
   });
 
-  return { thicknesses, warning };
+  return { thicknesses, zones, warning };
 }
 
-function getFcValues() {
-  return singleFcToggle.checked
-    ? sensors.map(() => parseFloat(singleFcValue.value))
-    : sensors.map((s) => s.fc);
-}
-
-function getPwpValues() {
-  const mode = pwpMode();
-  if (mode === "per-sensor") return sensors.map((s) => s.pwp);
-  if (mode === "single") return sensors.map(() => parseFloat(singlePwpValue.value));
-  const t = soilTextureByKey(pwpTextureSelect.value);
-  const val = t ? t.wp * 100 : NaN;
-  return sensors.map(() => val);
-}
-
-// Builds "<tspan>θ</tspan><tspan baseline offset>sub</tspan> = value%" as SVG markup,
-// a reliable cross-browser way to fake a subscript in SVG text.
+// Builds "θ<sub>sub</sub> = value%" as SVG markup using offset tspans - a reliable
+// cross-browser way to fake a subscript in SVG text.
 function thetaLabel(sub, value) {
   const v = isNaN(value) ? "?" : Math.round(value * 10) / 10;
   return '<tspan font-style="italic">θ</tspan>' +
-    '<tspan font-size="8" dy="3">' + sub + '</tspan>' +
+    '<tspan font-size="10" dy="3">' + sub + '</tspan>' +
     '<tspan dy="-3"> = ' + v + '%</tspan>';
 }
 
 // --- Live SVG diagram of the sensor profile (realistic probe styling) -----
-function renderProfileDiagram(rootZoneDepth, thicknesses, fcValues, currentValues) {
+function renderProfileDiagram(rootZoneDepth, zones, fcValues, currentValues) {
   const depths = sensors.map((s) => s.depth);
   const validDepths = depths.filter((d) => !isNaN(d) && d >= 0);
   const profileBottom = Math.max(rootZoneDepth || 0, ...validDepths, 1);
 
-  const width = 400, height = Math.max(380, 70 * sensors.length + 120);
-  const top = 30, bottom = height - 30;
-  const colX = 90, colW = 110;
+  const width = 460, height = Math.max(420, 86 * sensors.length + 130);
+  const top = 34, bottom = height - 34;
+  const colX = 150, colW = 120;
   const colCenter = colX + colW / 2;
   const scale = (bottom - top) / profileBottom;
   const y = (d) => top + d * scale;
@@ -194,12 +249,17 @@ function renderProfileDiagram(rootZoneDepth, thicknesses, fcValues, currentValue
   const sorted = [...indexed].sort((a, b) => a.depth - b.depth);
 
   let bands = "";
-  sorted.forEach((s, pos) => {
-    const zTop = pos === 0 ? 0 : (sorted[pos - 1].depth + s.depth) / 2;
-    const zBottom = pos === sorted.length - 1 ? rootZoneDepth : (s.depth + sorted[pos + 1].depth) / 2;
+  let zoneLabels = "";
+  zones.forEach((z, pos) => {
     const fill = pos % 2 === 0 ? "#D9C19A" : "#CBAE80";
-    bands += '<rect x="' + colX + '" y="' + y(Math.max(0, zTop)) + '" width="' + colW + '" height="' +
-      Math.max(0, y(Math.min(profileBottom, zBottom)) - y(Math.max(0, zTop))) + '" fill="' + fill + '"></rect>';
+    const yTop = y(z.top), yBottom = y(Math.min(profileBottom, z.bottom));
+    bands += '<rect x="' + colX + '" y="' + yTop + '" width="' + colW + '" height="' + Math.max(0, yBottom - yTop) + '" fill="' + fill + '"></rect>';
+
+    // Explicit depth range used for this sensor's zone, labeled to the left of the column.
+    const midY = (yTop + yBottom) / 2;
+    zoneLabels +=
+      '<text x="' + (colX - 10) + '" y="' + (midY + 4) + '" font-size="12" text-anchor="end" font-family="Public Sans, sans-serif" fill="#5a4a33">' +
+      formatNumber(z.top) + '&ndash;' + formatNumber(Math.min(profileBottom, z.bottom)) + ' in</text>';
   });
 
   let dividers = "";
@@ -211,39 +271,39 @@ function renderProfileDiagram(rootZoneDepth, thicknesses, fcValues, currentValue
 
   // Access tube running down the middle, with a data cable inside it, like a real
   // capacitance-probe installation (sensor collars clipped to a central tube).
-  const tubeW = 16;
-  const tubeBottomY = sorted.length ? y(sorted[sorted.length - 1].depth) + 10 : y(0);
+  const tubeW = 20;
+  const tubeBottomY = sorted.length ? y(sorted[sorted.length - 1].depth) + 12 : y(0);
   let tube =
     '<rect x="' + (colCenter - tubeW / 2) + '" y="' + top + '" width="' + tubeW + '" height="' + (tubeBottomY - top) +
     '" fill="#F3EDE0" stroke="#8a7355" stroke-width="1"></rect>' +
     '<line x1="' + colCenter + '" y1="' + top + '" x2="' + colCenter + '" y2="' + tubeBottomY +
-    '" stroke="#E0B400" stroke-width="1.5"></line>';
+    '" stroke="#E0B400" stroke-width="2"></line>';
 
   let sensorMarks = "";
   sorted.forEach((s) => {
     const sy = y(s.depth);
     const fc = fcValues[s.i];
     const cur = currentValues[s.i];
-    const nodeW = 34, nodeH = 9;
+    const nodeW = 42, nodeH = 12;
 
     // The sensor "collar" clipped onto the access tube.
     const node =
       '<rect x="' + (colCenter - nodeW / 2) + '" y="' + (sy - nodeH / 2) + '" width="' + nodeW + '" height="' + nodeH +
-      '" rx="2" fill="#8c8c8c" stroke="#4a4a4a" stroke-width="1"></rect>' +
-      '<rect x="' + (colCenter - nodeW / 2) + '" y="' + (sy - 1.5) + '" width="' + nodeW + '" height="3" fill="#5a5a5a"></rect>';
+      '" rx="2.5" fill="#8c8c8c" stroke="#4a4a4a" stroke-width="1.2"></rect>' +
+      '<rect x="' + (colCenter - nodeW / 2) + '" y="' + (sy - 2) + '" width="' + nodeW + '" height="4" fill="#5a5a5a"></rect>';
 
     // Leader line from the collar out to the label block on the right.
     const leaderStartX = colX + colW;
-    const leaderEndX = leaderStartX + 18;
+    const leaderEndX = leaderStartX + 20;
     const leader = '<line x1="' + (colCenter + nodeW / 2) + '" y1="' + sy + '" x2="' + leaderEndX + '" y2="' + sy +
-      '" stroke="#191919" stroke-width="1" stroke-dasharray="2,2"></line>';
+      '" stroke="#191919" stroke-width="1.2" stroke-dasharray="2,2"></line>';
 
-    const labelX = leaderEndX + 6;
+    const labelX = leaderEndX + 8;
     const depthLabel = (isNaN(s.depth) ? "?" : s.depth) + " in";
     const label =
-      '<text x="' + labelX + '" y="' + (sy - 10) + '" font-size="11" font-weight="700" font-family="Public Sans, sans-serif" fill="#191919">S' + (s.i + 1) + ' — ' + depthLabel + '</text>' +
-      '<text x="' + labelX + '" y="' + (sy + 4) + '" font-size="11" font-family="Public Sans, sans-serif" fill="#191919">' + thetaLabel("v", cur) + '</text>' +
-      '<text x="' + labelX + '" y="' + (sy + 17) + '" font-size="11" font-family="Public Sans, sans-serif" fill="var(--text-muted)">' + thetaLabel("fc", fc) + '</text>';
+      '<text x="' + labelX + '" y="' + (sy - 16) + '" font-size="15" font-weight="800" font-family="Public Sans, sans-serif" fill="#191919">S' + (s.i + 1) + ' — ' + depthLabel + '</text>' +
+      '<text x="' + labelX + '" y="' + (sy + 4) + '" font-size="14" font-family="Public Sans, sans-serif" fill="#191919">' + thetaLabel("v", cur) + '</text>' +
+      '<text x="' + labelX + '" y="' + (sy + 23) + '" font-size="14" font-family="Public Sans, sans-serif" fill="var(--text-muted)">' + thetaLabel("fc", fc) + '</text>';
 
     sensorMarks += leader + node + label;
   });
@@ -254,9 +314,10 @@ function renderProfileDiagram(rootZoneDepth, thicknesses, fcValues, currentValue
     '<rect x="' + colX + '" y="' + top + '" width="' + colW + '" height="' + (bottom - top) + '" fill="none" stroke="#8a7355" stroke-width="1.5"></rect>' +
     dividers +
     tube +
-    '<line x1="' + (colX - 10) + '" y1="' + top + '" x2="' + (colX + colW) + '" y2="' + top + '" stroke="#2c5a2a" stroke-width="2"></line>' +
-    '<text x="' + (colX - 10) + '" y="' + (top - 8) + '" font-size="10" font-family="Public Sans, sans-serif" fill="#2c5a2a" text-anchor="start">surface (0 in)</text>' +
-    '<text x="' + colX + '" y="' + (bottom + 18) + '" font-size="10" font-family="Public Sans, sans-serif" fill="var(--text-muted)">root zone bottom: ' + (isNaN(rootZoneDepth) ? "?" : rootZoneDepth) + ' in</text>' +
+    zoneLabels +
+    '<line x1="' + (colX - 12) + '" y1="' + top + '" x2="' + (colX + colW) + '" y2="' + top + '" stroke="#2c5a2a" stroke-width="2.5"></line>' +
+    '<text x="' + (colX - 12) + '" y="' + (top - 10) + '" font-size="13" font-family="Public Sans, sans-serif" fill="#2c5a2a" text-anchor="start">surface (0 in)</text>' +
+    '<text x="' + colX + '" y="' + (bottom + 22) + '" font-size="12" font-family="Public Sans, sans-serif" fill="var(--text-muted)">root zone bottom: ' + (isNaN(rootZoneDepth) ? "?" : rootZoneDepth) + ' in</text>' +
     sensorMarks;
 
   profileDiagram.setAttribute("viewBox", "0 0 " + width + " " + height);
@@ -308,6 +369,10 @@ function renderSwdMadChart(SWD, MAD_total) {
 function calculate() {
   const rootZoneDepth = parseFloat(rootZoneDepthInput.value);
 
+  madReadout.textContent = madPct.value + "% of AWC";
+  etReadout.textContent = parseFloat(etRate.value).toFixed(2) + " in/d";
+  efficiencyReadout.textContent = appEfficiency.value + "%";
+
   if (isNaN(rootZoneDepth) || sensors.length === 0) {
     awcStatsGrid.innerHTML = tile("—", "Enter values above");
     decisionStatsGrid.innerHTML = "";
@@ -315,12 +380,12 @@ function calculate() {
     return;
   }
 
-  const { thicknesses, warning } = computeZoneThicknesses(rootZoneDepth);
+  const { thicknesses, zones, warning } = computeZoneThicknesses(rootZoneDepth);
   const fcValues = getFcValues();
   const pwpValues = getPwpValues();
   const currentValues = sensors.map((s) => s.current);
 
-  renderProfileDiagram(rootZoneDepth, thicknesses, fcValues, currentValues);
+  renderProfileDiagram(rootZoneDepth, zones, fcValues, currentValues);
 
   if (fcValues.some((v) => isNaN(v)) || pwpValues.some((v) => isNaN(v)) || currentValues.some((v) => isNaN(v)) || sensors.some((s) => isNaN(s.depth))) {
     awcStatsGrid.innerHTML = tile("—", "Enter values above");
@@ -335,7 +400,6 @@ function calculate() {
   const AWC_total = FC_total - PWP_total;
 
   const mad = parseFloat(madPct.value);
-  if (isNaN(mad)) { awcStatsGrid.innerHTML = tile("—", "Enter MAD above"); return; }
   const MAD_total = (mad / 100) * AWC_total;
 
   let awcHtml =
@@ -353,10 +417,10 @@ function calculate() {
   renderSwdMadChart(Math.max(0, SWD), MAD_total);
 
   const eff = parseFloat(appEfficiency.value);
-  const grossDepth = !isNaN(eff) && eff > 0 && SWD > 0 ? SWD / (eff / 100) : null;
+  const grossDepth = SWD > 0 ? SWD / (eff / 100) : null;
 
   const et = parseFloat(etRate.value);
-  const daysUntilMad = !isNaN(et) && et > 0 && SWD < MAD_total ? (MAD_total - SWD) / et : null;
+  const daysUntilMad = SWD < MAD_total ? (MAD_total - SWD) / et : null;
 
   if (SWD <= 0) {
     decisionBanner.innerHTML = '<div class="ok-box">Soil is at or above field capacity (SWD &le; 0) — no irrigation needed.</div>';
@@ -382,9 +446,7 @@ function calculate() {
   decisionStatsGrid.innerHTML = decisionHtml;
 }
 
-[rootZoneDepthInput, singleFcValue, singlePwpValue, madPct, etRate, appEfficiency].forEach((el) =>
-  el.addEventListener("input", calculate)
-);
+[rootZoneDepthInput, madPct, etRate, appEfficiency].forEach((el) => el.addEventListener("input", calculate));
 
 renderSensors();
 calculate();
