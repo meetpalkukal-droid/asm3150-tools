@@ -55,7 +55,7 @@
     .param-columns { grid-template-columns: 1fr; }
   }
   .param-columns h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
-  #profile-diagram-wrap {
+  #profile-diagram-wrap, #swd-mad-chart-wrap {
     display: flex;
     justify-content: center;
     padding: 1rem 0;
@@ -63,6 +63,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow-x: auto;
+    margin-bottom: 1rem;
   }
 </style>
 </head>
@@ -172,7 +173,7 @@
   </section>
 
   <section class="panel">
-    <h2>2. Available Water &amp; Trigger Point</h2>
+    <h2>2. Available Water &amp; Allowed Depletion</h2>
     <p class="note">
       Available water capacity is derived automatically from field capacity and wilting
       point above &mdash; no separate estimate needed.
@@ -191,6 +192,16 @@
 
   <section class="panel">
     <h2>3. Scheduling Decision</h2>
+    <p class="note">
+      Irrigation scheduling comes down to comparing two depths: how much water has
+      already been depleted from the profile (SWD), and how much you're willing to let
+      it deplete before stressing the crop (MAD). When SWD reaches MAD, it's time to
+      irrigate.
+    </p>
+
+    <div id="swd-mad-chart-wrap">
+      <svg id="swd-mad-chart" width="300" height="270"></svg>
+    </div>
 
     <div class="field" style="max-width:220px;">
       <label for="et-rate">Daily water use rate (optional)</label>
@@ -198,7 +209,7 @@
         <input type="number" id="et-rate" step="any" placeholder="e.g. 0.25">
         <div style="display:flex; align-items:center; padding:0 0.65rem; color:var(--text-muted);">in/d</div>
       </div>
-      <p class="note">If given, estimates how many days the remaining buffer will last.</p>
+      <p class="note">If given, estimates how many days until SWD catches up to MAD.</p>
     </div>
 
     <div class="field" style="max-width:220px;">
@@ -236,27 +247,27 @@
       D_total = sum(theta_i x thickness_i); AWC = FC - PWP
     </p>
     <p>
-      The trigger (refill point) is the field-capacity total minus the allowable
-      depletion; once the current total drops to or below it, it's time to irrigate.
-      The depth to apply is simply what's needed to bring the profile back to field
-      capacity:
+      Soil water depletion (SWD) is how much water has already been used from the
+      profile since it was last at field capacity &mdash; which is also exactly the
+      depth you'd need to apply to refill it. Management allowed depletion (MAD) is how
+      much of the available water capacity you're willing to let the crop use before it
+      stresses. Irrigation scheduling is simply comparing the two:
     </p>
-    <p class="formula-box" data-latex="\text{Refill point} = FC - MAD \qquad \text{Depth to apply} = FC - D_{current}">
-      Refill point = FC - MAD &nbsp;&nbsp;&mdash;&nbsp;&nbsp; Depth to apply = FC - D_current
+    <p class="formula-box" data-latex="SWD = FC - \theta_{v,current} \qquad \text{irrigate when} \quad SWD \geq MAD">
+      SWD = FC - theta_v,current &nbsp;&nbsp;&mdash;&nbsp;&nbsp; irrigate when SWD &ge; MAD
     </p>
     <p class="note">
       A technical note on precision: the absolute profile totals (field capacity,
       current water) depend on exactly how zone thicknesses are assigned, so two
-      reasonable conventions can give slightly different absolute numbers. The
-      <em>differences</em> that actually drive the schedule &mdash; depth to apply, and
-      remaining buffer before the trigger &mdash; are not sensitive to that choice, as
-      long as it's applied consistently to every reading.
+      reasonable conventions can give slightly different absolute numbers. SWD &mdash;
+      the <em>difference</em> that actually drives the schedule &mdash; is not sensitive
+      to that choice, as long as it's applied consistently to every reading.
     </p>
     <div class="example-box">
       <strong>For example:</strong> a 2-ft root zone with sensors at 6, 12, and 24 in,
       reading 32%, 29%, 34% at field capacity and 24%, 27%, 29% right now, with a 50%
-      MAD, works out to a depth of about 1.2 in needed to refill the profile, with about
-      0.9 in of buffer remaining before the trigger point.
+      MAD: SWD works out to about 1.2 in, below the MAD of 2.1 in &mdash; still about
+      0.9 in of room before it's time to irrigate.
     </div>
   </section>
 </main>
