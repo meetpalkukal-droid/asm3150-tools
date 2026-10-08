@@ -11,6 +11,12 @@ const areaInput = document.getElementById("area-input");
 const areaNumber = document.getElementById("area-number");
 const flowInput = document.getElementById("flow-input");
 const flowNumber = document.getElementById("flow-number");
+const flowPerAcreToggle = document.getElementById("flow-per-acre-toggle");
+const flowPerAcreInput = document.getElementById("flow-per-acre-input");
+const flowPerAcreNumber = document.getElementById("flow-per-acre-number");
+const flowPerAcreTotal = document.getElementById("flow-per-acre-total");
+const fieldFlowAbsolute = document.getElementById("field-flow-absolute");
+const fieldFlowPerAcre = document.getElementById("field-flow-per-acre");
 const percentInput = document.getElementById("percent-input");
 const percentNumber = document.getElementById("percent-number");
 const efficiencyInput = document.getElementById("efficiency-input");
@@ -62,6 +68,24 @@ function currentTarget() {
   return document.querySelector('input[name="solve-for"]:checked').value;
 }
 
+// Flow rate at the pivot (Q, gpm) can be entered directly, or as a design
+// rate in gpm/acre that scales with the irrigated area.
+function currentFlow(A) {
+  if (flowPerAcreToggle.checked) {
+    const gpmPerAcre = parseFloat(flowPerAcreInput.value);
+    const total = gpmPerAcre * A;
+    flowPerAcreTotal.textContent = total.toFixed(0);
+    return total;
+  }
+  return parseFloat(flowInput.value);
+}
+
+function updateFlowModeVisibility() {
+  const perAcre = flowPerAcreToggle.checked;
+  fieldFlowAbsolute.classList.toggle("field--hidden", perAcre);
+  fieldFlowPerAcre.classList.toggle("field--hidden", !perAcre);
+}
+
 function updateVisibility() {
   const target = currentTarget();
   fieldDepth.classList.toggle("field--hidden", target === "depth");
@@ -74,7 +98,7 @@ function calculate() {
   const target = currentTarget();
 
   const A = parseFloat(areaInput.value);
-  const Q = parseFloat(flowInput.value);
+  const Q = currentFlow(A);
   const P = parseFloat(percentInput.value) / 100;
   const E = parseFloat(efficiencyInput.value) / 100;
 
@@ -95,12 +119,16 @@ document.querySelectorAll('input[name="solve-for"]').forEach((r) =>
   r.addEventListener("change", () => { updateVisibility(); calculate(); })
 );
 
+flowPerAcreToggle.addEventListener("change", () => { updateFlowModeVisibility(); calculate(); });
+
 bindSliderNumber(areaInput, areaNumber);
 bindSliderNumber(flowInput, flowNumber);
+bindSliderNumber(flowPerAcreInput, flowPerAcreNumber);
 bindSliderNumber(percentInput, percentNumber);
 bindSliderNumber(efficiencyInput, efficiencyNumber);
 bindSliderNumber(depthInput, depthNumber);
 bindSliderNumber(timeInput, timeNumber);
 
 updateVisibility();
+updateFlowModeVisibility();
 calculate();

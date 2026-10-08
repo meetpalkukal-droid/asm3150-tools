@@ -63,11 +63,30 @@
 
     <div class="field">
       <label for="flow-input">Flow rate at the pivot (Q)</label>
-      <div class="slider-number-row">
-        <input type="number" id="flow-number" min="100" max="1500" step="25" value="800">
-        <span class="unit-label">gpm</span>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="flow-per-acre-toggle">
+        <label for="flow-per-acre-toggle">Enter as a design rate (gpm/acre) instead</label>
       </div>
-      <input type="range" id="flow-input" min="100" max="1500" step="25" value="800">
+
+      <div id="field-flow-absolute">
+        <div class="slider-number-row">
+          <input type="number" id="flow-number" min="100" max="1500" step="25" value="800">
+          <span class="unit-label">gpm</span>
+        </div>
+        <input type="range" id="flow-input" min="100" max="1500" step="25" value="800">
+      </div>
+
+      <div id="field-flow-per-acre" class="field--hidden">
+        <div class="slider-number-row">
+          <input type="number" id="flow-per-acre-number" min="2" max="10" step="0.25" value="6">
+          <span class="unit-label">gpm/acre</span>
+        </div>
+        <input type="range" id="flow-per-acre-input" min="2" max="10" step="0.25" value="6">
+        <p class="note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem;">
+          = <span id="flow-per-acre-total">780</span> gpm total at the current irrigated area
+        </p>
+      </div>
     </div>
 
     <div class="field">
@@ -140,7 +159,9 @@
       quantity becomes an input slider. This is the same relationship behind WSU's
       <a href="https://irrigation.wsu.edu/Content/Calculators/Center-Pivot/1-Inch-Application-Time.php" target="_blank" rel="noopener">1&quot; Application Time calculator</a>,
       generalized here to any target depth instead of only 1 inch, and solvable in either
-      direction.
+      direction. Flow rate can be entered directly in gpm, or as a design rate in
+      gpm/acre (a common way pivots are sized) &mdash; check the box under the flow field
+      and the tool multiplies it by the irrigated area for you.
     </p>
     <div class="example-box">
       <strong>Worked example:</strong> A 130-acre full-circle pivot (P&nbsp;=&nbsp;100%) delivering
