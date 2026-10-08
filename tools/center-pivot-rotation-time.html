@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Center Pivot Rotation Time &amp; Application Depth &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Center Pivot Rotation Time &amp; Application Depth</p>
+
+  <section class="page-intro">
+    <h1>Center Pivot Rotation Time &amp; Application Depth</h1>
+    <p class="tool-purpose">
+      I tell you how long a center pivot needs to run to apply a target depth of water
+      &mdash; or how much depth it will lay down in a given run time.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="formula-box" id="formula-display" data-latex="T = \dfrac{452.6 \times A \times d \times P}{Q \times E}">T = 452.6 &times; A &times; d &times; P / (Q &times; E)</div>
+
+    <fieldset style="border:none; padding:0; margin:0 0 1.5rem;">
+      <legend style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">Solve for</legend>
+      <div class="solve-for" id="solve-for-group">
+        <input type="radio" name="solve-for" id="solve-time" value="time" checked>
+        <label for="solve-time">Rotation time</label>
+
+        <input type="radio" name="solve-for" id="solve-depth" value="depth">
+        <label for="solve-depth">Application depth</label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label for="area-input">Irrigated area (A)</label>
+      <div class="slider-number-row">
+        <input type="number" id="area-number" min="10" max="200" step="5" value="130">
+        <span class="unit-label">acres</span>
+      </div>
+      <input type="range" id="area-input" min="10" max="200" step="5" value="130">
+    </div>
+
+    <div class="field">
+      <label for="flow-input">Flow rate at the pivot (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="flow-number" min="100" max="1500" step="25" value="800">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="flow-input" min="100" max="1500" step="25" value="800">
+    </div>
+
+    <div class="field">
+      <label for="percent-input">Percent of full circle irrigated (P)</label>
+      <div class="slider-number-row">
+        <input type="number" id="percent-number" min="10" max="100" step="5" value="100">
+        <span class="unit-label">%</span>
+      </div>
+      <input type="range" id="percent-input" min="10" max="100" step="5" value="100">
+      <p class="note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem;">
+        Below 100% only if a wiper/GPS switch shuts part of the circle off (e.g. to avoid a
+        road or farmstead). Leave at 100% for a full-circle pivot.
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="efficiency-input">Irrigation application efficiency (E)</label>
+      <div class="slider-number-row">
+        <input type="number" id="efficiency-number" min="60" max="95" step="1" value="85">
+        <span class="unit-label">%</span>
+      </div>
+      <input type="range" id="efficiency-input" min="60" max="95" step="1" value="85">
+    </div>
+
+    <div class="field" id="field-depth">
+      <label for="depth-input">Depth to apply (d)</label>
+      <div class="slider-number-row">
+        <input type="number" id="depth-number" min="0.10" max="3.00" step="0.05" value="1.00">
+        <span class="unit-label">in</span>
+      </div>
+      <input type="range" id="depth-input" min="0.10" max="3.00" step="0.05" value="1.00">
+    </div>
+
+    <div class="field field--hidden" id="field-time">
+      <label for="time-input">Rotation time (T)</label>
+      <div class="slider-number-row">
+        <input type="number" id="time-number" min="1" max="240" step="1" value="24">
+        <span class="unit-label">hr</span>
+      </div>
+      <input type="range" id="time-input" min="1" max="240" step="1" value="24">
+    </div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-box__value" id="result-value">&mdash;</div>
+        <div class="result-box__label" id="result-label"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      For a center pivot, the time needed to complete one pass while applying a given depth
+      of water depends on the irrigated area, the flow rate delivered at the pivot point, how
+      much of the full circle is actually being irrigated, and how efficiently that water is
+      applied:
+    </p>
+    <p class="formula-box" data-latex="T = \dfrac{452.6 \times A \times d \times P}{Q \times E}">T = 452.6 &times; A &times; d &times; P / (Q &times; E)</p>
+    <p>
+      where <em>T</em> is rotation time (hours), <em>A</em> is irrigated area (acres),
+      <em>d</em> is the depth applied (inches), <em>P</em> is the fraction of the full circle
+      being irrigated (decimal), <em>Q</em> is the flow rate at the pivot (gpm), and <em>E</em>
+      is irrigation application efficiency (decimal). The constant 452.6 converts an
+      acre-inch of water into gallons per minute per hour (1 acre-inch &asymp; 27,154 gallons,
+      and 27,154 &divide; 60 &asymp; 452.6).
+    </p>
+    <p>
+      Pick whether you want to solve for rotation time or application depth; the other
+      quantity becomes an input slider. This is the same relationship behind WSU's
+      <a href="https://irrigation.wsu.edu/Content/Calculators/Center-Pivot/1-Inch-Application-Time.php" target="_blank" rel="noopener">1&quot; Application Time calculator</a>,
+      generalized here to any target depth instead of only 1 inch, and solvable in either
+      direction.
+    </p>
+    <div class="example-box">
+      <strong>Worked example:</strong> A 130-acre full-circle pivot (P&nbsp;=&nbsp;100%) delivering
+      800 gpm at 85% application efficiency needs about 86.5 hours (3.6 days) to lay down 1 inch
+      of water. Push the depth slider down to 0.5 in and the rotation time drops to about 43.3
+      hours &mdash; half the depth, half the time.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="center-pivot-rotation-time.js"></script>
+</body>
+</html>

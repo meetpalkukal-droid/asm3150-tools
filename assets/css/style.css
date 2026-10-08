@@ -319,6 +319,48 @@ select:hover, input:hover { border-color: var(--ui-silver); }
   cursor: pointer;
 }
 
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--ui-gold);
+  height: 1.4rem;
+}
+
+.slider-readout {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ui-black);
+  margin-bottom: 0.2rem;
+}
+
+.slider-number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.slider-number-row input[type="number"] {
+  width: 6.5rem;
+  flex: 0 0 auto;
+}
+
+.slider-number-row .unit-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.tool-purpose {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ui-black);
+  border-left: 4px solid var(--ui-gold);
+  padding: 0.6rem 1rem;
+  margin: 0.75rem 0 0;
+  max-width: 65ch;
+  line-height: 1.4;
+}
+
 .formula-box {
   font-size: 0.95rem;
   background: var(--ui-silver-light);

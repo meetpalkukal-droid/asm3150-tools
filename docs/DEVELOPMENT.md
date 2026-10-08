@@ -79,6 +79,20 @@ wires up input listeners per row, and add/remove-row buttons. See
 `catch-can-uniformity.js`, `infiltration-deep-percolation.js`, or
 `farm-well-discharge.js` for the pattern.
 
+### Sliders with a text-box option
+
+Tools built around `<input type="range">` (bounded, physically meaningful inputs —
+see `center-pivot-rotation-time.html` and `soil-sensor-irrigation-scheduling.html`)
+should let a student also type an exact value instead of only dragging. Pattern: a
+`.slider-number-row` (`<input type="number">` + unit label) sits above the
+`<input type="range">`, both sharing the same `min`/`max`/`step`, wired together by a
+generic `bindSliderNumber(slider, number)` helper that syncs both directions, clamps
+the number box to the slider's range on blur, and calls `calculate()`. See
+`center-pivot-rotation-time.js`. (The sensor tool predates this helper and binds its
+per-row current-moisture sliders by hand — not worth refactoring, but new tools should
+use `bindSliderNumber`.) The generic `input[type="range"]` and `.slider-readout`
+styling lives in `assets/css/style.css`, not per-page `<style>` blocks.
+
 ### Math rendering (KaTeX)
 
 Every page with a formula loads KaTeX from a CDN:

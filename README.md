@@ -70,6 +70,14 @@ the folder with any static file server.
   a class slide, not the textbook; deliberately has no soil-type or crop-type lookup —
   every parameter is entered directly.
 
+**Center Pivot Design & Operation (supplemental — not from the textbook)**
+- Center Pivot Rotation Time & Application Depth (`center-pivot-rotation-time`) —
+  solves T = 452.6&times;A&times;d&times;P/(Q&times;E) for rotation time or application
+  depth, in either direction. Generalizes WSU's
+  [1" Application Time calculator](https://irrigation.wsu.edu/Content/Calculators/Center-Pivot/1-Inch-Application-Time.php)
+  (the 452.6 constant and formula structure were confirmed against that page's own
+  JavaScript, not just its displayed equation image) to any target depth.
+
 **External resources**
 - Link out to the AgriMet real-time crop water use tool
 
