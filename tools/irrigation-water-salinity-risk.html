@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Irrigation Water Salinity &amp; Sodicity Risk &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  #sodicity-chart-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    background: #FAFAF8;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Irrigation Water Salinity &amp; Sodicity Risk</p>
+
+  <section class="page-intro">
+    <h1>Irrigation Water Salinity &amp; Sodicity Risk</h1>
+    <p class="tool-purpose">
+      I turn a water test report into a practical answer: how much salt this water adds
+      to my field, what it will do to my crop's yield, and whether it will hurt my
+      soil's ability to take in water.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Water Quality &amp; Salt Load</h2>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="conc-mode-toggle">
+      <label for="conc-mode-toggle">Enter salt concentration (mg/L or ppm) instead of EC</label>
+    </div>
+
+    <div class="field" id="field-ec">
+      <label for="ec-input">Electrical conductivity of the water (EC)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="ec-input" step="any" value="1.2">
+        <span class="unit-label" style="align-self:center;">dS/m</span>
+      </div>
+    </div>
+
+    <div class="field field--hidden" id="field-conc">
+      <label for="conc-input">Salt concentration (C)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="conc-input" step="any" value="500">
+        <span class="unit-label" style="align-self:center;">mg/L (ppm)</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="depth-input">Depth of irrigation water applied this season (d<sub>a</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="depth-input" step="any" value="15">
+        <span class="unit-label" style="align-self:center;">inches</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="area-input">Field area (A)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="area-input" step="any" value="50">
+        <span class="unit-label" style="align-self:center;">acres</span>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="W = 0.226 \times C \times d_a \times A">W = 0.226 &times; C &times; d&#8320; &times; A</div>
+
+    <div class="stats-grid" id="panel1-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Crop Yield Impact from Root-Zone Salinity</h2>
+
+    <div class="field">
+      <label for="crop-select">Crop (Table 7.2 salt tolerance)</label>
+      <select id="crop-select"></select>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="ece-mode-toggle">
+      <label for="ece-mode-toggle">Enter a measured root-zone ECe directly, instead of using the water's EC above</label>
+    </div>
+
+    <div class="field field--hidden" id="field-ece">
+      <label for="ece-input">Measured root-zone salinity (ECe)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="ece-input" step="any" value="4.7">
+        <span class="unit-label" style="align-self:center;">dS/m</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="ymax-input">Nonsaline potential yield (Y<sub>max</sub>)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="ymax-input" step="any" value="180">
+        <input type="text" id="yield-unit-input" value="bu/ac">
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="Y_r = 100 - S(EC_e - T) \quad \text{for } EC_e > T">Yr = 100 &minus; S(ECe &minus; T), for ECe &gt; T</div>
+
+    <div class="stats-grid" id="panel2-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Sodicity (Infiltration) Hazard</h2>
+    <p>
+      Ion concentrations in milliequivalents per liter (meq/L) from the water test
+      report:
+    </p>
+
+    <div class="param-columns" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="field">
+        <label for="na-input">Sodium (C<sub>Na</sub>)</label>
+        <div class="value-unit-pair">
+          <input type="number" id="na-input" step="any" value="33">
+          <span class="unit-label" style="align-self:center;">meq/L</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="ca-input">Calcium (C<sub>Ca</sub>)</label>
+        <div class="value-unit-pair">
+          <input type="number" id="ca-input" step="any" value="24">
+          <span class="unit-label" style="align-self:center;">meq/L</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="mg-input">Magnesium (C<sub>Mg</sub>)</label>
+        <div class="value-unit-pair">
+          <input type="number" id="mg-input" step="any" value="8">
+          <span class="unit-label" style="align-self:center;">meq/L</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="sar-ec-mode-toggle">
+      <label for="sar-ec-mode-toggle">Use a different EC for this check, instead of the water's EC from Section 1</label>
+    </div>
+
+    <div class="field field--hidden" id="field-sar-ec">
+      <label for="sar-ec-input">Electrical conductivity for sodicity check</label>
+      <div class="value-unit-pair">
+        <input type="number" id="sar-ec-input" step="any" value="0.4">
+        <span class="unit-label" style="align-self:center;">dS/m</span>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="SAR = \dfrac{C_{Na}}{\sqrt{(C_{Ca}+C_{Mg})/2}}">SAR = CNa / &radic;((CCa+CMg)/2)</div>
+
+    <div id="sodicity-chart-wrap">
+      <svg id="sodicity-chart" width="560" height="420"></svg>
+    </div>
+
+    <div class="stats-grid" id="panel3-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Bundles three related checks from Chapter 7 (Salinity Management) that a grower
+      would naturally run together after a water test comes back: how much salt that
+      water adds to the field (Eq. 5.18), what it will do to a given crop's yield if
+      the root zone reaches that salinity (Eq. 7.3, Table 7.2), and whether the
+      water's sodium content is likely to hurt infiltration (Eq. 7.4, Figure 7.10).
+    </p>
+    <p>
+      Figure 7.10's two boundary lines (Rhoades, 1982) have no printed equation in the
+      textbook &mdash; they were digitized directly from the published figure (sub-pixel
+      least-squares line fits against a 400 DPI page render) rather than approximated,
+      to stay faithful to the book's own chart rather than a generic substitute.
+    </p>
+    <div class="example-box">
+      <strong>Worked examples this bundles:</strong> Example 7.1 (salt load from a
+      500 mg/L water applied at 15 in to 50 ac &rarr; 42 tons), Example 7.2 (corn at
+      3,000 mg/L &rarr; 64% relative yield, 115 bu/ac from a 180 bu/ac potential), and
+      Example 7.3 (SAR=8.2 at EC=0.4 dS/m &rarr; infiltration likely reduced). Defaults
+      above reproduce all three.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/salinity-data.js"></script>
+<script src="irrigation-water-salinity-risk.js"></script>
+</body>
+</html>

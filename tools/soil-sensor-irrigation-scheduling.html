@@ -10,11 +10,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
-  .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:0.9rem; }
-  .stat-tile { background:#FFF9E8; border:1px solid var(--ui-gold); border-radius:var(--radius); padding:0.85rem 1rem; }
-  .stat-tile__value { font-size:1.35rem; font-weight:800; color:var(--ui-black); }
-  .stat-tile__label { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
-  .stat-tile--primary { background:#FFF3CC; border-width:2px; }
   .sensor-row {
     display: grid;
     gap: 0.5rem;
@@ -37,14 +32,6 @@
     cursor:pointer; height:2.2rem; width: 2.2rem;
   }
   .row-remove button:hover { background:#fdecec; border-color:#d9534f; color:#d9534f; }
-  .warning-box {
-    background:#fdecec; border:1px solid #d9534f; border-radius:var(--radius);
-    padding:0.9rem 1.1rem; font-size:0.95rem; color:#7a1f1f; margin-bottom:1rem; font-weight:700;
-  }
-  .ok-box {
-    background:#eef7ec; border:1px solid #4c8c4a; border-radius:var(--radius);
-    padding:0.9rem 1.1rem; font-size:0.95rem; color:#2c5a2a; margin-bottom:1rem; font-weight:700;
-  }
   .param-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;

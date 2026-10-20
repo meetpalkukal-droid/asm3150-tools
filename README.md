@@ -30,6 +30,9 @@ assets/
   js/units.js                     Shared unit-conversion data (volume, flow, length,
                                    area, time, velocity, mass) + conversion helpers
   js/soil-data.js                 Shared Table 2.3 soil-texture data (fc, wp by texture)
+  js/salinity-data.js             Shared Chapter 7 data: Table 7.2 crop salt tolerance,
+                                   Table 7.3 water quality classes, and digitized
+                                   Figures 7.10/7.11 (sodicity + leaching requirement)
 tools/
   <tool-name>.html                One page per calculator
   <tool-name>.js                  Its logic (paired 1:1 with the HTML file)
@@ -61,6 +64,24 @@ the folder with any static file server.
 - Canal/Ditch Seepage Loss (`conveyance-seepage-loss`)
 - Peak Daily ET & Net System Capacity, Table 5.3 (`peak-et-net-capacity`)
 - Gross Capacity & Farm Well Discharge (`farm-well-discharge`)
+
+**Chapter 7 — Salinity Management**
+
+Bundled as two practical, application-style tools rather than six separate textbook-example
+clones — each groups the examples a grower would naturally need together (diagnose a water
+test, then decide how much extra water to apply):
+- Irrigation Water Salinity & Sodicity Risk (`irrigation-water-salinity-risk`) — bundles
+  Examples 7.1-7.3: salt load applied from a water test, crop yield impact from root-zone
+  salinity (Table 7.2), and sodicity/infiltration hazard (Figure 7.10).
+- Leaching Requirement & Reclamation Planner (`leaching-requirement-reclamation-planner`) —
+  bundles Examples 7.4-7.6: actual leaching fraction (diagnostic), leaching requirement
+  (planning, Figure 7.11), and soil reclamation by ponding or sprinkling.
+
+Figures 7.10 and 7.11 have no printed equation in the textbook — both were digitized
+directly from the published charts (sub-pixel least-squares line fits against a 400 DPI
+page render) rather than approximated with a generic formula from the literature, and the
+leaching-requirement digitization was verified against the book's own Example 7.5. See
+`docs/DEVELOPMENT.md` for the digitized coefficients and how they were derived.
 
 **Irrigation Scheduling (sensor-based, supplemental — not from the textbook)**
 - Soil Moisture Sensor Irrigation Scheduling (`soil-sensor-irrigation-scheduling`) —

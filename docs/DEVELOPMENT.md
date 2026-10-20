@@ -217,6 +217,47 @@ doesn't match a scan of their own copy of the book.
   the actual column values, not an assumed uniform step; if you ever touch that
   function, keep it that way.
 
+## Digitizing a figure with no printed equation (Chapter 7)
+
+Chapter 7 (Salinity Management) has two nomographs with no underlying equation printed
+anywhere in the text: Figure 7.10 (sodicity hazard, Rhoades 1982) and Figure 7.11
+(leaching requirement, Hoffman & van Genuchten 1983). Both are now reproduced exactly
+in `assets/js/salinity-data.js` (`sodicityLineA`/`sodicityLineB`/`classifySodicity`,
+and `LEACHING_REQUIREMENT_ANCHORS`/`leachingRequirement`), digitized rather than
+approximated with a generic formula from the wider literature. Method, in case another
+chart like this comes up:
+
+1. Render the PDF page at high DPI (400, not the usual 200 used for text verification —
+   line-tracing needs the extra pixel density): `pdftoppm -png -r 400 -f <page> -l <page>`.
+2. Crop to the chart's bounding box and locate the axis box border and tick marks
+   programmatically (numpy: columns/rows where >90% of pixels in-range are dark = the
+   box border; thin dark runs just outside the border = ticks) to get an exact
+   pixel-to-data-coordinate calibration. Don't eyeball axis positions — the ticks give
+   sub-pixel calibration for free.
+3. For each column, find "thin" dark pixel runs (height ≤ ~8px) — these are curve
+   pixels; large blocky runs are text label glyphs. This alone doesn't fully separate
+   multiple curves from each other or from nearby text, especially where curves start
+   bunched together near the origin.
+4. Cross-check candidate points against the figure's own text labels (connected-component
+   analysis finds each label's bounding box) and, critically, against the book's own
+   worked example — Example 7.5's answer (ECa=2.4, T=2.5 → Lr=0.17) is what caught an
+   initial mislabeling where two of the five Figure 7.11 curves had been swapped (the
+   fitted lines were internally perfect — sub-pixel residuals — but attached to the
+   wrong Lr value). **A tight residual on a least-squares fit confirms the points lie on
+   *a* line, not that you've identified *which* line.** Always validate digitized curves
+   against a worked example with a known answer before trusting them.
+5. Fit each isolated curve by least squares (forced through the origin for Figure 7.11,
+   since every Lr curve passes through it — confirmed visually first, which is what
+   made reducing it to a 1-D lookup of Lr vs. the ratio T/ECa possible at all).
+
+Figure 7.11's digitized model is **not** the same as the commonly-cited simple
+Rhoades/FAO-29 leaching requirement formula (`LR = ECw/(5·ECe−ECw)`) — plugging
+Example 7.5's numbers into that formula gives 0.24, not the book's 0.17. Hoffman &
+van Genuchten's model accounts for nonuniform water extraction with depth and gives
+a lower Lr for the same inputs. This is a real, citable difference in the salinity
+literature, not a mistake in either source — but it's why this project's tools digitize
+*this book's* curves instead of substituting the better-known formula.
+
 ## Where results intentionally differ from the textbook
 
 A few tools carry full precision through every step rather than rounding

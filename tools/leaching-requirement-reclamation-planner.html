@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaching Requirement &amp; Reclamation Planner &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Leaching Requirement &amp; Reclamation Planner</p>
+
+  <section class="page-intro">
+    <h1>Leaching Requirement &amp; Reclamation Planner</h1>
+    <p class="tool-purpose">
+      I tell you whether you leached enough water through your field already, how much
+      extra water to apply so salt doesn't build up, and how much water it takes to fix
+      a field that already has too much salt.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Was I Leaching Enough? (actual leaching fraction)</h2>
+    <p>Looking back at a season already irrigated &mdash; a diagnostic check.</p>
+
+    <div class="param-columns">
+      <div>
+        <h3>Water applied</h3>
+        <div class="field">
+          <label for="lf-dz">Irrigation infiltrated (d<sub>z</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lf-dz" step="any" value="300">
+            <span class="unit-label" style="align-self:center;">mm</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="lf-dr">Rainfall infiltrated (d<sub>r</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lf-dr" step="any" value="250">
+            <span class="unit-label" style="align-self:center;">mm</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3>Measured salinity</h3>
+        <div class="field">
+          <label for="lf-eci">Irrigation water EC (C<sub>i</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lf-eci" step="any" value="0.5">
+            <span class="unit-label" style="align-self:center;">dS/m</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="lf-ecd">Drainage water EC (C<sub>d</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lf-ecd" step="any" value="2.5">
+            <span class="unit-label" style="align-self:center;">dS/m</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="L_f = \dfrac{C_a}{C_d} \qquad C_a = \dfrac{C_i d_z + C_r d_r}{d_z+d_r}">Lf = Ca/Cd, Ca = (Ci&middot;dz + Cr&middot;dr)/(dz+dr)</div>
+
+    <div class="stats-grid" id="lf-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>2. How Much Extra Water Do I Need? (leaching requirement)</h2>
+    <p>Planning ahead &mdash; how much extra water this crop needs this water quality to leach.</p>
+
+    <div class="param-columns">
+      <div>
+        <h3>Water &amp; crop</h3>
+        <div class="field">
+          <label for="lr-eci">Irrigation water EC (EC<sub>i</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lr-eci" step="any" value="3">
+            <span class="unit-label" style="align-self:center;">dS/m</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="lr-crop">Crop (Table 7.2 salt tolerance threshold)</label>
+          <select id="lr-crop"></select>
+        </div>
+      </div>
+      <div>
+        <h3>Depths contributing to the root zone</h3>
+        <div class="field">
+          <label for="lr-dz">Irrigation depth (d<sub>z</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lr-dz" step="any" value="16">
+            <span class="unit-label" style="align-self:center;">inches</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="lr-dr">Rainfall depth (d<sub>r</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="lr-dr" step="any" value="4">
+            <span class="unit-label" style="align-self:center;">inches</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="EC_a = \dfrac{EC_i d_z + EC_r d_r}{d_z+d_r} \qquad L_r = f(EC_a, T) \ \text{(Fig. 7.11)}">ECa = (ECi&middot;dz + ECr&middot;dr)/(dz+dr), Lr from Figure 7.11</div>
+
+    <div class="stats-grid" id="lr-stats"></div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="lr-gross-toggle">
+      <label for="lr-gross-toggle">Also compute gross water to apply, given a target net irrigation depth</label>
+    </div>
+    <div class="field field--hidden" id="lr-gross-field">
+      <label for="lr-net-depth">Net irrigation depth the crop needs this cycle</label>
+      <div class="value-unit-pair">
+        <input type="number" id="lr-net-depth" step="any" value="2.0">
+        <span class="unit-label" style="align-self:center;">inches</span>
+      </div>
+      <div class="stats-grid" id="lr-gross-stats" style="margin-top:0.75rem;"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>3. How Much Water Does Reclamation Take?</h2>
+    <p>The field is already salt-affected &mdash; leaching it back down to a target salinity.</p>
+
+    <div class="param-columns">
+      <div>
+        <div class="field">
+          <label for="rc-depth">Depth of soil to reclaim (d<sub>s</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="rc-depth" step="any" value="3">
+            <span class="unit-label" style="align-self:center;">feet</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rc-texture">Soil type</label>
+          <select id="rc-texture"></select>
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label for="rc-co">Current soil salinity (EC<sub>e</sub>, C<sub>o</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="rc-co" step="any" value="10">
+            <span class="unit-label" style="align-self:center;">dS/m</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rc-cf">Target soil salinity (C<sub>f</sub>)</label>
+          <div class="value-unit-pair">
+            <input type="number" id="rc-cf" step="any" value="2">
+            <span class="unit-label" style="align-self:center;">dS/m</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="d_L = K \times d_s \times \dfrac{C_o}{C_f}">dL = K &times; ds &times; (Co/Cf)</div>
+
+    <div class="stats-grid" id="rc-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Bundles the three practical "how much extra water" questions from Chapter 7
+      (Salinity Management): whether past irrigation leached enough to prevent salt
+      buildup (Eq. 7.6/7.7, diagnostic), how much extra water a crop and water quality
+      require going forward (Eq. 7.7 + Figure 7.11, planning), and how much water it
+      takes to reclaim an already salt-affected soil (Eq. 7.9/7.10).
+    </p>
+    <p>
+      Figure 7.11 (Hoffman &amp; van Genuchten, 1983) has no printed equation &mdash; every
+      L<sub>r</sub> curve on it is a straight line through the origin, so it was digitized
+      as leaching requirement vs. the ratio T/EC<sub>a</sub> (sub-pixel least-squares fits
+      against a 400 DPI page render). The digitization was checked against the book's own
+      Example 7.5 (EC<sub>a</sub>=2.4, T=2.5 &rarr; L<sub>r</sub>=0.17): this model gives 0.175,
+      and the surrounding 0.15/0.20 curves correctly bracket it.
+    </p>
+    <div class="example-box">
+      <strong>Worked examples this bundles:</strong> Example 7.4 (300 mm irrigation +
+      250 mm rain, C<sub>i</sub>=0.5, C<sub>d</sub>=2.5 &rarr; L<sub>f</sub>=0.11), Example 7.5
+      (tomatoes, EC<sub>i</sub>=3, 16 in + 4 in rain &rarr; L<sub>r</sub>&asymp;0.17), and
+      Example 7.6 (3 ft clay loam, EC<sub>e</sub> 10&rarr;2 dS/m &rarr; 4.5 ft ponded or 1.5 ft
+      sprinkled). Defaults above reproduce all three.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/salinity-data.js"></script>
+<script src="leaching-requirement-reclamation-planner.js"></script>
+</body>
+</html>
