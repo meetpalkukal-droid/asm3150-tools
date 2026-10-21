@@ -216,6 +216,14 @@ doesn't match a scan of their own copy of the book.
   a full inch, the rest are 0.5-in steps. `peak-et-net-capacity.js`'s interpolation uses
   the actual column values, not an assumed uniform step; if you ever touch that
   function, keep it that way.
+- **Example 8.4** states "33 sprinklers on the lateral (1280/40)" and uses n=33 to get
+  Q=165 gpm, but 1280÷40 = 32, not 33, by Table 8.3's own stated convention (first
+  outlet one full spacing from the inlet). Rather than guess which number is the typo,
+  `pipeline-energy-friction-losses.html` takes outlet count and lateral length as two
+  independent inputs (both set to the book's own stated values, 33 and 1280) instead of
+  deriving length from outlets × spacing, so the tool reproduces the example exactly
+  either way. A "use outlets × spacing as length" button is available if you want the
+  derived value instead.
 
 ## Digitizing a figure with no printed equation (Chapter 7)
 
@@ -257,6 +265,24 @@ van Genuchten's model accounts for nonuniform water extraction with depth and gi
 a lower Lr for the same inputs. This is a real, citable difference in the salinity
 literature, not a mistake in either source — but it's why this project's tools digitize
 *this book's* curves instead of substituting the better-known formula.
+
+## Chapter 8 (hydraulics) notes
+
+Unlike Chapter 7, none of Chapter 8's figures needed digitizing — Figure 8.3 (velocity
+head) is pure physics (Eq. 8.1, 8.5: `hv = (Q/Af)^2 / 2g`), so `buildVelocityChartSVG()`
+in `assets/js/hydraulics-data.js` just draws that function for a range of Q and standard
+diameters, shared by `pipe-velocity-water-hammer-check.js` and `mainline-pipe-sizing.js`.
+Tables 8.1 (C values), 8.3 (outlet factors), 8.4 (fitting K), and 8.5 (standard pipe
+sizes) were still transcribed from 250 DPI page renders rather than `pdftotext` (which
+badly scrambles Table 8.4's multi-column layout) and spot-checked against Examples
+8.2-8.5's own arithmetic before being trusted — Table 8.2a/b (precomputed Hazen-Williams
+results) were *not* transcribed at all, since Eq. 8.11 computes the same numbers exactly
+and generalizes to any Q/d/C a student enters, which table lookup can't.
+
+One cross-tool utility worth knowing about: `bindSliderNumber(slider, number, onChange)`
+(a slider/number-box pair synchronizer) lives in `assets/js/site.js`, not in any one
+tool's own script — it was promoted there once a second tool needed it, same as the
+`.stat-tile` CSS before it. Check `site.js` before writing a new per-tool copy of either.
 
 ## Where results intentionally differ from the textbook
 

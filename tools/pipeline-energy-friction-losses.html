@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipeline Energy, Friction &amp; Minor Losses &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .head-bars-wrap, #profile-diagram-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    background: #FAFAF8;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  .fitting-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .fitting-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .row-remove button {
+    background:none; border:1px solid var(--border); border-radius:6px; color:var(--text-muted);
+    cursor:pointer; height:2.2rem; width: 2.2rem;
+  }
+  .row-remove button:hover { background:#fdecec; border-color:#d9534f; color:#d9534f; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Pipeline Energy, Friction &amp; Minor Losses</p>
+
+  <section class="page-intro">
+    <h1>Pipeline Energy, Friction &amp; Minor Losses</h1>
+    <p class="tool-purpose">
+      I total up the energy in a pipeline at any point, and then track how much pressure
+      is lost to pipe friction and fittings between an inlet and outlet &mdash; so you can
+      predict the pressure at the far end of a lateral or pipe run.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Total Head at a Point</h2>
+    <p>Velocity, elevation, and pressure head at a point in the system (Eq. 8.1-8.4).</p>
+
+    <div class="field">
+      <label for="pt-q">Flow rate (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="pt-q-number" min="10" max="1500" step="5" value="400">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="pt-q" min="10" max="1500" step="5" value="400">
+    </div>
+
+    <div class="param-columns" id="pt-columns">
+      <div>
+        <h3>Point 1</h3>
+        <div class="field">
+          <label for="pt-z1">Elevation (Z<sub>1</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pt-z1" step="any" value="15"><span class="unit-label" style="align-self:center;">ft</span></div>
+        </div>
+        <div class="field">
+          <label for="pt-p1">Pressure (P<sub>1</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pt-p1" step="any" value="60"><span class="unit-label" style="align-self:center;">psi</span></div>
+        </div>
+        <div class="field">
+          <label for="pt-d1">Pipe inside diameter (d<sub>1</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pt-d1" step="any" value="3.9"><span class="unit-label" style="align-self:center;">in</span></div>
+        </div>
+      </div>
+      <div id="pt-point2-col">
+        <h3>Point 2</h3>
+        <div class="field">
+          <label for="pt-z2">Elevation (Z<sub>2</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pt-z2" step="any" value="15"><span class="unit-label" style="align-self:center;">ft</span></div>
+        </div>
+        <div class="field">
+          <label for="pt-p2">Pressure (P<sub>2</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pt-p2" step="any" value="60"><span class="unit-label" style="align-self:center;">psi</span></div>
+        </div>
+        <div class="field">
+          <label for="pt-d2">Pipe inside diameter (d<sub>2</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pt-d2" step="any" value="10"><span class="unit-label" style="align-self:center;">in</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="pt-second-toggle" checked>
+      <label for="pt-second-toggle">Compare to a second point (same flow rate, continuity)</label>
+    </div>
+
+    <div class="formula-box" data-latex="H = \dfrac{V_m^2}{2g} + Z + h \qquad h = 2.31 \times P">H = Vm&sup2;/2g + Z + h, h = 2.31 &times; P</div>
+
+    <div class="head-bars-wrap">
+      <svg id="head-bars-chart" width="520" height="380"></svg>
+    </div>
+
+    <div class="stats-grid" id="pt-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Friction Loss Along a Pipe</h2>
+    <p>Hazen-Williams friction loss (Eq. 8.11), for a plain run or a lateral with evenly spaced outlets (Table 8.3).</p>
+
+    <div class="solve-for" id="friction-mode-group">
+      <input type="radio" name="friction-mode" id="mode-single" value="single">
+      <label for="mode-single">Single pipe run</label>
+      <input type="radio" name="friction-mode" id="mode-lateral" value="lateral" checked>
+      <label for="mode-lateral">Lateral with evenly spaced outlets</label>
+    </div>
+
+    <div class="field field--hidden" id="field-single-q">
+      <label for="fr-q-single">Flow rate (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="fr-q-single-number" min="10" max="2000" step="5" value="700">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="fr-q-single" min="10" max="2000" step="5" value="700">
+    </div>
+
+    <div class="field" id="field-lateral-inputs">
+      <div class="param-columns">
+        <div>
+          <label for="fr-outlets">Number of outlets</label>
+          <div class="value-unit-pair"><input type="number" id="fr-outlets" step="1" value="33"><span class="unit-label" style="align-self:center;">outlets</span></div>
+          <label for="fr-outlet-q" style="margin-top:0.75rem;">Discharge per outlet</label>
+          <div class="value-unit-pair"><input type="number" id="fr-outlet-q" step="any" value="5"><span class="unit-label" style="align-self:center;">gpm</span></div>
+        </div>
+        <div>
+          <label for="fr-spacing">Outlet spacing</label>
+          <div class="value-unit-pair"><input type="number" id="fr-spacing" step="any" value="40"><span class="unit-label" style="align-self:center;">ft</span></div>
+          <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.35rem 0.7rem; font-size:0.78rem; margin-top:0.4rem;" id="fill-length-btn">
+            Use outlets &times; spacing as length
+          </button>
+          <div class="toggle-row" style="margin-top:0.75rem;">
+            <input type="checkbox" id="fr-pivot-toggle">
+            <label for="fr-pivot-toggle">This is a center pivot (use its own outlet factor instead of Table 8.3)</label>
+          </div>
+          <div class="field field--hidden" id="field-pivot-endgun">
+            <div class="solve-for" id="pivot-endgun-group">
+              <input type="radio" name="pivot-endgun" id="pivot-no-gun" value="no" checked>
+              <label for="pivot-no-gun">No end gun (F=0.54)</label>
+              <input type="radio" name="pivot-endgun" id="pivot-gun" value="yes">
+              <label for="pivot-gun">With end gun (F=0.56)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" id="field-length">
+      <label for="fr-length">Pipe / lateral length (L)</label>
+      <div class="value-unit-pair"><input type="number" id="fr-length" step="any" value="1280"><span class="unit-label" style="align-self:center;">ft</span></div>
+    </div>
+
+    <div class="param-columns">
+      <div>
+        <div class="field">
+          <label for="fr-material">Pipe material (Table 8.1)</label>
+          <select id="fr-material"></select>
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label for="fr-diameter">Inside diameter</label>
+          <div class="value-unit-pair"><input type="number" id="fr-diameter" step="any" value="3.9"><span class="unit-label" style="align-self:center;">in</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="P_f = 456\,F\left(\dfrac{Q}{C}\right)^{1.852}\left(\dfrac{1}{d^{4.866}}\right)">Pf = 456 &times; F &times; (Q/C)^1.852 &times; (1/d^4.866)</div>
+
+    <div class="stats-grid" id="friction-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Minor Losses from Fittings</h2>
+    <p>Add every fitting or valve along the same pipe (Eq. 8.12, Table 8.4) &mdash; diameter and flow rate are shared with Section 2.</p>
+
+    <div class="fitting-header" id="fitting-header">
+      <div>Fitting / valve</div><div>Count</div><div>K (interpolated)</div><div></div>
+    </div>
+    <div id="fittings-container"></div>
+    <button type="button" class="swap-btn" style="width:auto; height:auto; border-radius:6px; padding:0.5rem 1rem; font-size:0.85rem;" id="add-fitting">+ Add fitting</button>
+
+    <div class="stats-grid" id="minor-loss-stats" style="margin-top:1rem;"></div>
+  </section>
+
+  <section class="panel">
+    <h2>4. Pressure Change End-to-End</h2>
+    <p>Combine friction (Section 2) and minor losses (Section 3) with elevation change to find the downstream pressure (Eq. 8.10).</p>
+
+    <div class="param-columns">
+      <div>
+        <div class="field">
+          <label for="pc-p1">Inlet pressure (P<sub>1</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="pc-p1" step="any" value="60"><span class="unit-label" style="align-self:center;">psi</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="solve-for" id="elevation-dir-group">
+          <input type="radio" name="elevation-dir" id="elev-fall" value="fall">
+          <label for="elev-fall">Pipe falls</label>
+          <input type="radio" name="elevation-dir" id="elev-rise" value="rise" checked>
+          <label for="elev-rise">Pipe rises</label>
+        </div>
+        <div class="field">
+          <label for="pc-elevation">Elevation change</label>
+          <div class="value-unit-pair"><input type="number" id="pc-elevation" step="any" value="12"><span class="unit-label" style="align-self:center;">ft</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="P_2 = P_1 - P_f - P_m \pm 0.433 \times \Delta Z">P2 = P1 &minus; Pf &minus; Pm &plusmn; 0.433 &times; elevation change</div>
+
+    <div id="profile-diagram-wrap">
+      <svg id="profile-diagram" width="560" height="220"></svg>
+    </div>
+
+    <div class="stats-grid" id="pressure-change-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Bundles the basic energy/continuity relationships (Eq. 8.1-8.10) with friction
+      loss (Hazen-Williams, Eq. 8.11, Table 8.1) and minor losses (Eq. 8.12, Table 8.4)
+      into the practical end-to-end question a designer actually asks: given an inlet
+      pressure, what pressure comes out the other end of this pipe?
+    </p>
+    <div class="example-box">
+      <strong>Worked examples this bundles:</strong> Section 1's defaults reproduce Example
+      8.2/8.3 (total/velocity head at two points on either side of a 4-in to 10-in
+      transition, 400 gpm). Sections 2-4 default to Example 8.4 (a 1280-ft, 4-in aluminum
+      lateral with 33 sprinklers at 5 gpm each, rising 12 ft, 60 psi inlet &rarr; 49.7 psi
+      at the end) &mdash; switch Section 2 to "Single pipe run" mode to size an ordinary
+      pipe segment instead of a lateral.
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-muted);">
+      Note: the textbook states 33 sprinklers on a 1280-ft lateral at 40-ft spacing, but
+      1280&divide;40 = 32 by Table 8.3's own convention (first outlet one full spacing from
+      the inlet). This tool enters outlet count and lateral length as two independent
+      numbers (both matching the book's own stated values) rather than deriving one from
+      the other, so it reproduces the example exactly either way — use the "outlets ×
+      spacing" button only when you want the length derived instead of entered directly.
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/hydraulics-data.js"></script>
+<script src="pipeline-energy-friction-losses.js"></script>
+</body>
+</html>

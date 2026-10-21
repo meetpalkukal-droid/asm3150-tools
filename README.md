@@ -33,6 +33,10 @@ assets/
   js/salinity-data.js             Shared Chapter 7 data: Table 7.2 crop salt tolerance,
                                    Table 7.3 water quality classes, and digitized
                                    Figures 7.10/7.11 (sodicity + leaching requirement)
+  js/hydraulics-data.js           Shared Chapter 8 data: Tables 8.1/8.3/8.4/8.5 (C
+                                   values, outlet factors, fitting K, standard pipe
+                                   sizes), Hazen-Williams/continuity formulas, and the
+                                   shared velocity-chart/pipe-profile SVG builders
 tools/
   <tool-name>.html                One page per calculator
   <tool-name>.js                  Its logic (paired 1:1 with the HTML file)
@@ -82,6 +86,32 @@ directly from the published charts (sub-pixel least-squares line fits against a 
 page render) rather than approximated with a generic formula from the literature, and the
 leaching-requirement digitization was verified against the book's own Example 7.5. See
 `docs/DEVELOPMENT.md` for the digitized coefficients and how they were derived.
+
+**Chapter 8 — Pump and Pipeline Hydraulics**
+
+Bundled as three practical tools covering Examples 8.2-8.5, again grouped by what a
+designer actually needs rather than one tool per example:
+- Pipe Velocity & Water Hammer Check (`pipe-velocity-water-hammer-check`) — a Figure
+  8.3-equivalent chart (computed directly from physics, not digitized — see below): a
+  family of straight velocity-vs-flow-rate lines, one per standard pipe size, with a
+  shaded water-hammer risk zone above an adjustable velocity threshold.
+- Pipeline Energy, Friction & Minor Losses (`pipeline-energy-friction-losses`) — bundles
+  Examples 8.2-8.4: total/velocity head at one or two points (continuity), Hazen-Williams
+  friction loss for a plain run or a lateral with evenly spaced outlets (Table 8.1, 8.3),
+  minor losses from a running tally of fittings (Table 8.4), and the resulting downstream
+  pressure.
+- Mainline Pipe Sizing & Pressure Change (`mainline-pipe-sizing`) — Example 8.5, as its
+  own dedicated tool per explicit request: picks the smallest standard pipe (Table 8.5)
+  that keeps velocity under a target, then carries friction and elevation through to an
+  outlet pressure. Reuses the water-hammer chart from the first tool.
+
+Unlike Chapter 7's figures, Figure 8.3 has no digitization to verify — velocity and
+velocity head are direct physics (Eq. 8.1, 8.5), so the chart is generated from the same
+formulas the rest of the tool uses, just drawn for a range of flow rates and pipe sizes.
+Tables 8.1, 8.3, 8.4, and 8.5 were all transcribed from 250 DPI page renders (not text
+extraction) and spot-checked against every worked example in the chapter; see
+`docs/DEVELOPMENT.md` for one textbook arithmetic inconsistency found along the way
+(Example 8.4's stated 33 sprinklers vs. its own 1280 ft ÷ 40 ft spacing).
 
 **Irrigation Scheduling (sensor-based, supplemental — not from the textbook)**
 - Soil Moisture Sensor Irrigation Scheduling (`soil-sensor-irrigation-scheduling`) —

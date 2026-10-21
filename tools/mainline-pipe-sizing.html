@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mainline Pipe Sizing &amp; Pressure Change &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  #velocity-chart-wrap, #profile-diagram-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    background: #FAFAF8;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Mainline Pipe Sizing &amp; Pressure Change</p>
+
+  <section class="page-intro">
+    <h1>Mainline Pipe Sizing &amp; Pressure Change</h1>
+    <p class="tool-purpose">
+      I pick the smallest standard pipe size that keeps your mainline below a safe
+      velocity, then tell you the pressure you'll actually have at the far end once
+      friction and elevation are accounted for.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Size the Pipe</h2>
+
+    <div class="field">
+      <label for="q-input">Flow rate (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="q-number" min="10" max="2000" step="5" value="700">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="q-input" min="10" max="2000" step="5" value="700">
+    </div>
+
+    <div class="field">
+      <label for="maxv-input">Target maximum velocity</label>
+      <div class="slider-number-row">
+        <input type="number" id="maxv-number" min="3" max="10" step="0.5" value="5">
+        <span class="unit-label">ft/s</span>
+      </div>
+      <input type="range" id="maxv-input" min="3" max="10" step="0.5" value="5">
+      <p class="note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem;">
+        5-6 ft/s is the textbook's usual mainline sizing guideline (Table 8.5 is built at
+        5 ft/s). See the <a href="pipe-velocity-water-hammer-check.html">Pipe Velocity &amp;
+        Water Hammer Check</a> tool for why.
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="category-select">Pipe category (Table 8.5)</label>
+      <select id="category-select"></select>
+    </div>
+
+    <div class="field">
+      <label for="size-select">Nominal size (recommended size pre-selected — change to explore)</label>
+      <select id="size-select"></select>
+    </div>
+
+    <div class="stats-grid" id="sizing-stats"></div>
+
+    <div id="velocity-chart-wrap">
+      <svg id="velocity-chart" width="640" height="440"></svg>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Pressure Change Along the Mainline</h2>
+
+    <div class="field">
+      <label for="material-select">Pipe material for friction loss (Table 8.1)</label>
+      <select id="material-select"></select>
+      <p class="note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem;">
+        Defaults to the roughness coefficient used to build Table 8.5 for the chosen
+        category — override if your actual pipe differs.
+      </p>
+    </div>
+
+    <div class="param-columns">
+      <div>
+        <div class="field">
+          <label for="length-input">Pipe length (L)</label>
+          <div class="value-unit-pair"><input type="number" id="length-input" step="any" value="600"><span class="unit-label" style="align-self:center;">ft</span></div>
+        </div>
+        <div class="field">
+          <label for="p1-input">Inlet pressure (P<sub>1</sub>)</label>
+          <div class="value-unit-pair"><input type="number" id="p1-input" step="any" value="35"><span class="unit-label" style="align-self:center;">psi</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="solve-for" id="elevation-dir-group">
+          <input type="radio" name="elevation-dir" id="elev-fall" value="fall" checked>
+          <label for="elev-fall">Pipe falls</label>
+          <input type="radio" name="elevation-dir" id="elev-rise" value="rise">
+          <label for="elev-rise">Pipe rises</label>
+        </div>
+        <div class="field">
+          <label for="elevation-input">Elevation change</label>
+          <div class="value-unit-pair"><input type="number" id="elevation-input" step="any" value="25"><span class="unit-label" style="align-self:center;">ft</span></div>
+        </div>
+        <div class="field">
+          <label for="minor-loss-input">Additional minor losses (optional)</label>
+          <div class="value-unit-pair"><input type="number" id="minor-loss-input" step="any" value="0"><span class="unit-label" style="align-self:center;">psi</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="P_2 = P_1 - P_f - P_m \pm 0.433 \times \Delta Z">P2 = P1 &minus; Pf &minus; Pm &plusmn; 0.433 &times; elevation change</div>
+
+    <div id="profile-diagram-wrap">
+      <svg id="profile-diagram" width="560" height="220"></svg>
+    </div>
+
+    <div class="stats-grid" id="pressure-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      This is Example 8.5's problem, generalized: given a flow rate and a target
+      velocity, pick the smallest standard pipe (Table 8.5) that keeps you under it,
+      then carry that pipe's friction loss (Hazen-Williams, Eq. 8.11) and the site's
+      elevation change through to a predicted outlet pressure (Eq. 8.10).
+    </p>
+    <p>
+      For a detailed fittings tally instead of the single lumped "additional minor
+      losses" field here, use the
+      <a href="pipeline-energy-friction-losses.html">Pipeline Energy, Friction &amp; Minor
+      Losses</a> tool, which shares the same Hazen-Williams and pressure-change logic.
+    </p>
+    <div class="example-box">
+      <strong>Worked example this reproduces:</strong> Example 8.5 &mdash; 700 gpm through
+      a PVC PIP mainline, 600 ft long, falling 25 ft, 35 psi inlet. The tool recommends
+      the 8-in PIP size (inside diameter 7.658 in, keeping velocity under 5 ft/s), giving
+      a friction loss of about 0.39 psi/100 ft and an outlet pressure of about 43.5 psi.
+      These are the tool's defaults.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/hydraulics-data.js"></script>
+<script src="mainline-pipe-sizing.js"></script>
+</body>
+</html>

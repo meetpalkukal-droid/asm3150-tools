@@ -38,32 +38,6 @@ const FORMULAS = {
   depth: "d = \\dfrac{T \\times Q \\times E}{452.6 \\times A \\times P}",
 };
 
-// Keeps a range slider and a number box in sync, clamping the number box to
-// the slider's min/max, and running `calculate` whenever either changes.
-function bindSliderNumber(slider, number) {
-  const min = parseFloat(slider.min);
-  const max = parseFloat(slider.max);
-
-  slider.addEventListener("input", () => {
-    number.value = slider.value;
-    calculate();
-  });
-
-  number.addEventListener("input", () => {
-    if (number.value === "") return;
-    const clamped = Math.min(Math.max(parseFloat(number.value), min), max);
-    if (!isNaN(clamped)) slider.value = clamped;
-    calculate();
-  });
-
-  number.addEventListener("blur", () => {
-    const clamped = Math.min(Math.max(parseFloat(number.value) || min, min), max);
-    number.value = clamped;
-    slider.value = clamped;
-    calculate();
-  });
-}
-
 function currentTarget() {
   return document.querySelector('input[name="solve-for"]:checked').value;
 }
@@ -121,13 +95,13 @@ document.querySelectorAll('input[name="solve-for"]').forEach((r) =>
 
 flowPerAcreToggle.addEventListener("change", () => { updateFlowModeVisibility(); calculate(); });
 
-bindSliderNumber(areaInput, areaNumber);
-bindSliderNumber(flowInput, flowNumber);
-bindSliderNumber(flowPerAcreInput, flowPerAcreNumber);
-bindSliderNumber(percentInput, percentNumber);
-bindSliderNumber(efficiencyInput, efficiencyNumber);
-bindSliderNumber(depthInput, depthNumber);
-bindSliderNumber(timeInput, timeNumber);
+bindSliderNumber(areaInput, areaNumber, calculate);
+bindSliderNumber(flowInput, flowNumber, calculate);
+bindSliderNumber(flowPerAcreInput, flowPerAcreNumber, calculate);
+bindSliderNumber(percentInput, percentNumber, calculate);
+bindSliderNumber(efficiencyInput, efficiencyNumber, calculate);
+bindSliderNumber(depthInput, depthNumber, calculate);
+bindSliderNumber(timeInput, timeNumber, calculate);
 
 updateVisibility();
 updateFlowModeVisibility();

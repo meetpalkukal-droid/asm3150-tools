@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipe Velocity &amp; Water Hammer Check &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  #velocity-chart-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    background: #FAFAF8;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Pipe Velocity &amp; Water Hammer Check</p>
+
+  <section class="page-intro">
+    <h1>Pipe Velocity &amp; Water Hammer Check</h1>
+    <p class="tool-purpose">
+      I show you how fast water is actually moving in a pipe for a given flow rate and
+      diameter, and whether that's fast enough to risk a water-hammer pressure surge if
+      flow is stopped suddenly.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Calculator</h2>
+
+    <div class="field">
+      <label for="q-input">Flow rate (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="q-number" min="10" max="1500" step="5" value="400">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="q-input" min="10" max="1500" step="5" value="400">
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="standard-size-toggle" checked>
+      <label for="standard-size-toggle">Pick from a standard pipe size (Table 8.5) instead of entering a diameter</label>
+    </div>
+
+    <div class="field" id="field-standard-size">
+      <label for="category-select">Pipe category</label>
+      <select id="category-select"></select>
+      <label for="size-select" style="margin-top:0.75rem;">Nominal size</label>
+      <select id="size-select"></select>
+    </div>
+
+    <div class="field field--hidden" id="field-custom-diameter">
+      <label for="diameter-input">Inside diameter</label>
+      <div class="slider-number-row">
+        <input type="number" id="diameter-number" min="0.5" max="16" step="0.1" value="4">
+        <span class="unit-label">inches</span>
+      </div>
+      <input type="range" id="diameter-input" min="0.5" max="16" step="0.1" value="4">
+    </div>
+
+    <div class="field">
+      <label for="maxv-input">Maximum safe velocity (water-hammer threshold)</label>
+      <div class="slider-number-row">
+        <input type="number" id="maxv-number" min="3" max="10" step="0.5" value="5">
+        <span class="unit-label">ft/s</span>
+      </div>
+      <input type="range" id="maxv-input" min="3" max="10" step="0.5" value="5">
+      <p class="note" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem;">
+        5 ft/s is the textbook's general guideline. Higher velocities may be acceptable
+        with surge protection (pressure relief valves, surge tanks).
+      </p>
+    </div>
+
+    <div class="formula-box" data-latex="V_m = \dfrac{Q}{A_f} \qquad h_v = \dfrac{V_m^2}{2g}">Vm = Q/Af, hv = Vm&sup2;/2g</div>
+
+    <div id="velocity-chart-wrap">
+      <svg id="velocity-chart" width="640" height="440"></svg>
+    </div>
+
+    <div class="stats-grid" id="result-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Average velocity in a pipe comes straight from the continuity equation (Eq. 8.5),
+      and velocity head from Eq. 8.1 &mdash; both direct physics, not a lookup table. The
+      textbook's Figure 8.3 is a nomograph for reading velocity head off a chart; this
+      tool computes it directly and adds the practical question the chapter raises in
+      the text: is this velocity high enough to risk water hammer?
+    </p>
+    <p class="formula-box" data-latex="h_v = \dfrac{V_m^2}{2g} \qquad g = 32.2 \ \text{ft/s}^2">hv = Vm&sup2;/2g, g = 32.2 ft/s&sup2;</p>
+    <p>
+      The chart shows a straight line for every standard pipe size in Table 8.5 (velocity
+      is directly proportional to flow rate for a fixed diameter), with your selected size
+      highlighted in gold. The shaded band marks velocities above your chosen threshold.
+    </p>
+    <div class="example-box">
+      <strong>Cross-check with Example 8.2:</strong> that example uses a 4-in pipe with
+      d=4 in exactly (switch to custom diameter mode to match it) and gets 10.2 ft/s &mdash;
+      more than double the 5 ft/s guideline. Pick the standard "4-in nominal aluminum
+      sprinkler" size instead (actual inside diameter 3.9 in, Table 8.5) and the real
+      velocity is slightly higher still, about 10.7 ft/s &mdash; the textbook's own worked
+      example is, by this check, a water-hammer risk either way. Switching to the 10-in
+      pipe used in Example 8.3 drops that to about 1.6 ft/s.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/hydraulics-data.js"></script>
+<script src="pipe-velocity-water-hammer-check.js"></script>
+</body>
+</html>
