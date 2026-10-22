@@ -314,3 +314,71 @@ function buildPipeProfileSVG(opts) {
   s += '<text x="' + (W / 2) + '" y="' + (H - 20) + '" font-size="13" text-anchor="middle" fill="#444">' + (rising ? "Rises " : "Falls ") + elevMag.toFixed(1) + " ft</text>";
   return s;
 }
+
+// Hydraulic/energy grade line diagram: the pipe is drawn AT its true
+// elevation (to the same vertical scale as the head components), with
+// pressure head and velocity head stacked on top of each point to reach its
+// total head (H) - the standard textbook way of drawing Eq. 8.4 (matches
+// Figure 8.2's idea of elevation head + pressure head + velocity head
+// components), rather than a generic bar chart floating next to a separate
+// pipe drawing. One point draws a single node; two points draw the pipe
+// between them, tilted to their real relative elevation.
+function buildHeadProfileSVG(opts) {
+  const W = opts.width || 560, H = opts.height || 420;
+  const padL = 60, padR = 30, padT = 46, padB = 56;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const points = opts.points; // [{Z, h, hv, label}]
+  const totals = points.map((p) => p.Z + p.h + p.hv);
+  const maxH = Math.max(...totals, 0.001) * 1.15;
+  const yPx = (v) => padT + plotH - (v / maxH) * plotH;
+  const xs = points.length === 2 ? [padL + plotW * 0.28, padL + plotW * 0.72] : [padL + plotW * 0.5];
+  const barW = 56;
+  const nodeColors = ["#F1B300", "#5a7fa6"];
+  const segColors = { h: "#F1B300", hv: "#5a7fa6" };
+
+  let s = "";
+  for (let i = 0; i <= 5; i++) {
+    const v = (maxH / 5) * i;
+    s += '<line x1="' + padL + '" y1="' + yPx(v) + '" x2="' + (padL + plotW) + '" y2="' + yPx(v) + '" stroke="#e5e0d5" stroke-width="1"/>';
+    s += '<text x="' + (padL - 8) + '" y="' + (yPx(v) + 4) + '" font-size="11" text-anchor="end" fill="#666">' + v.toFixed(0) + "</text>";
+  }
+  s += '<text x="16" y="' + (padT + plotH / 2) + '" font-size="13" text-anchor="middle" fill="#333" transform="rotate(-90 16 ' + (padT + plotH / 2) + ')">Head above datum (ft)</text>';
+  s += '<line x1="' + padL + '" y1="' + yPx(0) + '" x2="' + (padL + plotW) + '" y2="' + yPx(0) + '" stroke="#191919" stroke-width="1.5"/>';
+  s += '<text x="' + (padL + plotW) + '" y="' + (yPx(0) - 6) + '" font-size="11" text-anchor="end" fill="#444">Datum (Z=0)</text>';
+
+  // Pipe, drawn at true elevation - the diagonal/level line IS the pipe.
+  if (points.length === 2) {
+    s += '<line x1="' + xs[0] + '" y1="' + yPx(points[0].Z) + '" x2="' + xs[1] + '" y2="' + yPx(points[1].Z) + '" stroke="#8c8c8c" stroke-width="7" stroke-linecap="round"/>';
+  }
+
+  // Legend, single row above the plot (same convention as the head-bars chart used to use).
+  const legendItems = [["elev", "#8c8c8c", "Elevation (Z)"], ["h", "#F1B300", "Pressure head (h)"], ["hv", "#5a7fa6", "Velocity head"]];
+  let legendX = padL;
+  legendItems.forEach(([key, color, label]) => {
+    s += '<rect x="' + legendX + '" y="10" width="11" height="11" fill="' + color + '"/>';
+    s += '<text x="' + (legendX + 16) + '" y="19" font-size="11" fill="#333">' + label + "</text>";
+    legendX += 16 + label.length * 5.6 + 18;
+  });
+
+  points.forEach((p, i) => {
+    const x = xs[i];
+    const zY = yPx(p.Z);
+    // Dashed guide from datum up to the pipe's elevation.
+    s += '<line x1="' + x + '" y1="' + yPx(0) + '" x2="' + x + '" y2="' + zY + '" stroke="#8c8c8c" stroke-width="1.5" stroke-dasharray="4,3"/>';
+    // Node on the pipe itself (white-filled so it reads clearly against the
+    // gold pressure-head segment sitting right above it).
+    s += '<circle cx="' + x + '" cy="' + zY + '" r="7" fill="#fff" stroke="' + nodeColors[i] + '" stroke-width="3"/>';
+    // Stacked pressure head + velocity head, rising from the pipe.
+    let yTop = zY;
+    [["h", p.h], ["hv", p.hv]].forEach(([key, val]) => {
+      const yNew = yTop - (val / maxH) * plotH;
+      s += '<rect x="' + (x - barW / 2) + '" y="' + yNew + '" width="' + barW + '" height="' + (yTop - yNew) + '" fill="' + segColors[key] + '" stroke="#191919" stroke-width="1"/>';
+      yTop = yNew;
+    });
+    s += '<text x="' + x + '" y="' + (yTop - 8) + '" font-size="12" font-weight="700" text-anchor="middle" fill="#191919">H=' + (p.Z + p.h + p.hv).toFixed(1) + "</text>";
+    s += '<text x="' + x + '" y="' + (yPx(0) + 20) + '" font-size="13" font-weight="700" text-anchor="middle" fill="#191919">' + (p.label || "Point " + (i + 1)) + "</text>";
+    s += '<text x="' + x + '" y="' + (yPx(0) + 36) + '" font-size="11" text-anchor="middle" fill="#666">Z=' + p.Z.toFixed(1) + " ft</text>";
+  });
+
+  return s;
+}

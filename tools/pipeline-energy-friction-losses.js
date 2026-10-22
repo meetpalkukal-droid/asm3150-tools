@@ -49,56 +49,9 @@ function calcPoints() {
   }
   ptStats.innerHTML = html;
 
-  renderHeadBars(p1, p2);
-}
-
-function renderHeadBars(p1, p2) {
-  const svg = document.getElementById("head-bars-chart");
-  const W = 520, H = 380;
-  const padL = 60, padR = 20, padT = 40, padB = 50;
-  const plotW = W - padL - padR, plotH = H - padT - padB;
-  const points = p2 ? [p1, p2] : [p1];
-  const maxH = Math.max(...points.map((p) => p.H)) * 1.15 || 1;
-  const barW = p2 ? 100 : 160;
-  const gap = p2 ? 100 : 0;
-  const totalBarsWidth = points.length * barW + (points.length - 1) * gap;
-  const startX = padL + (plotW - totalBarsWidth) / 2;
-  const yPx = (v) => padT + plotH - (v / maxH) * plotH;
-
-  let s = "";
-  for (let i = 0; i <= 5; i++) {
-    const v = (maxH / 5) * i;
-    s += '<line x1="' + padL + '" y1="' + yPx(v) + '" x2="' + (padL + plotW) + '" y2="' + yPx(v) + '" stroke="#e5e0d5" stroke-width="1"/>';
-    s += '<text x="' + (padL - 8) + '" y="' + (yPx(v) + 4) + '" font-size="11" text-anchor="end" fill="#666">' + v.toFixed(0) + "</text>";
-  }
-  s += '<text x="16" y="' + (padT + plotH / 2) + '" font-size="13" text-anchor="middle" fill="#333" transform="rotate(-90 16 ' + (padT + plotH / 2) + ')">Head (ft)</text>';
-
-  const colors = { hv: "#5a7fa6", Z: "#8c8c8c", h: "#F1B300" };
-  points.forEach((p, i) => {
-    const x = startX + i * (barW + gap);
-    let yTop = yPx(0);
-    const segs = [["hv", p.hv], ["Z", parseFloat([ptZ1, ptZ2][i].value)], ["h", p.h]];
-    segs.forEach(([key, val]) => {
-      const yBottom = yTop;
-      const yNew = yBottom - (val / maxH) * plotH;
-      s += '<rect x="' + x + '" y="' + yNew + '" width="' + barW + '" height="' + (yBottom - yNew) + '" fill="' + colors[key] + '" stroke="#191919" stroke-width="1"/>';
-      yTop = yNew;
-    });
-    s += '<text x="' + (x + barW / 2) + '" y="' + (yPx(0) + 20) + '" font-size="13" font-weight="700" text-anchor="middle" fill="#191919">Point ' + (i + 1) + "</text>";
-    s += '<text x="' + (x + barW / 2) + '" y="' + (yTop - 8) + '" font-size="12" font-weight="700" text-anchor="middle" fill="#191919">H=' + p.H.toFixed(1) + "</text>";
-  });
-
-  // Legend as a single horizontal row above the plot, so it never overlaps
-  // the bars or their H= labels regardless of how many points are shown.
-  const legendItems = [["hv", "Velocity head"], ["Z", "Elevation head"], ["h", "Pressure head"]];
-  let legendX = padL;
-  legendItems.forEach(([key, label]) => {
-    s += '<rect x="' + legendX + '" y="12" width="11" height="11" fill="' + colors[key] + '"/>';
-    s += '<text x="' + (legendX + 16) + '" y="21" font-size="11" fill="#333">' + label + "</text>";
-    legendX += 16 + label.length * 6 + 16;
-  });
-
-  svg.innerHTML = s;
+  const points = [{ Z: parseFloat(ptZ1.value), h: p1.h, hv: p1.hv, label: "Point 1" }];
+  if (p2) points.push({ Z: parseFloat(ptZ2.value), h: p2.h, hv: p2.hv, label: "Point 2" });
+  document.getElementById("head-bars-chart").innerHTML = buildHeadProfileSVG({ width: 520, height: 420, points });
 }
 
 // ---------- Section 2: Friction loss ----------
