@@ -37,6 +37,10 @@ assets/
                                    values, outlet factors, fitting K, standard pipe
                                    sizes), Hazen-Williams/continuity formulas, and the
                                    shared velocity-chart/pipe-profile SVG builders
+  js/pump-data.js                  Shared Chapter 8 pump data: Table 8.6 (Nebraska
+                                   Pumping Plant Performance Criteria), the Flowserve
+                                   12SKL reference curve + affinity-law scaling
+                                   functions, and the pump-curve chart builder
 tools/
   <tool-name>.html                One page per calculator
   <tool-name>.js                  Its logic (paired 1:1 with the HTML file)
@@ -112,6 +116,24 @@ Tables 8.1, 8.3, 8.4, and 8.5 were all transcribed from 250 DPI page renders (no
 extraction) and spot-checked against every worked example in the chapter; see
 `docs/DEVELOPMENT.md` for one textbook arithmetic inconsistency found along the way
 (Example 8.4's stated 33 sprinklers vs. its own 1280 ft ÷ 40 ft spacing).
+
+**Pumps (Chapter 8, sections 8.5-8.7)** — two more tools, same chapter:
+- Pump Power, Performance Rating & Energy Cost (`pump-power-performance-energy`) —
+  bundles Examples 8.6-8.10: total dynamic head &rarr; water/brake horsepower &rarr; how a
+  plant's measured fuel or electricity use compares to the Nebraska Pumping Plant
+  Performance Criteria (Table 8.6, all five energy sources) &rarr; energy (and optionally
+  $) cost per acre-inch pumped.
+- Pump Selection & Multistage Sizing (`pump-selection-multistage-sizing`) — Example
+  8.11, built around the real Flowserve 12SKL curve from Figure 8.11. Rather than
+  digitizing all four printed diameter curves plus the efficiency-contour web, this
+  tool digitizes **one** reference curve (8.19 in, 1770 rpm) and generates every other
+  diameter or speed from it via the affinity laws (Eq. 8.15a/b) — the same relationship
+  manufacturers use to produce trim curves in the first place. A live chart shows the
+  pump curve against the system's actual requirement, flags oversizing, shades the
+  throttling-loss wedge, and computes the trim diameter or VFD speed that fixes it
+  (checked against the book's own chart-read answers of 7.75 in / 1670 rpm — this
+  model lands within about 1% of both, using a fraction of the digitization work).
+  See `docs/DEVELOPMENT.md` for the full derivation and validation.
 
 **Irrigation Scheduling (sensor-based, supplemental — not from the textbook)**
 - Soil Moisture Sensor Irrigation Scheduling (`soil-sensor-irrigation-scheduling`) —

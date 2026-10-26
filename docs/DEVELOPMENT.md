@@ -284,6 +284,53 @@ One cross-tool utility worth knowing about: `bindSliderNumber(slider, number, on
 tool's own script — it was promoted there once a second tool needed it, same as the
 `.stat-tile` CSS before it. Check `site.js` before writing a new per-tool copy of either.
 
+## Pump curves via the affinity laws, not digitization (Chapter 8, Example 8.11)
+
+Figure 8.11 is a real Flowserve 12SKL/12KSL datasheet: four impeller-diameter
+head-capacity curves, an efficiency-contour web crossing all four, a power curve, an
+NPSH curve, and a stage-derate table. Fully digitizing that (four curves plus ~10
+efficiency contour lines each) would have been the most expensive digitization in this
+project by a wide margin, for a chart that generalizes poorly anyway — it only shows
+four fixed diameters and one fixed speed, so it can't answer "what if the correct trim
+is 7.9 in" or "what speed does a VFD need" at all.
+
+Instead, `assets/js/pump-data.js` digitizes **one** reference curve (8.19 in, 1770 rpm —
+a dozen or so points read off a 400 DPI page render, quadratic least-squares fit, then
+shifted to pass exactly through this chapter's own Example 8.11 point: 800 gpm → 57
+ft/stage) and generates every other diameter or speed from it using the affinity laws
+(Eq. 8.15a/b), which is the physical relationship manufacturers use to produce trim
+curves in the first place:
+
+```
+Q2 = r·Q1,  H2 = r²·H1,  BHP2 = r³·BHP1        (r = DIA2/DIA1 or RPM2/RPM1)
+```
+
+For a quadratic reference curve `H1 = A + B·Q1 + C·Q1²`, this scaling is closed-form —
+substituting `Q1 = Q2/r` shows the scaled curve is `H2 = (r²A) + (rB)·Q2 + C·Q2²`: still
+a quadratic, with `A → r²A`, `B → rB`, and `C` unchanged. `stageHeadFt()` evaluates this
+directly; `diameterForHead()`/`rpmForHead()` invert it by solving the quadratic in `r`
+for a target head, which is exactly what Example 8.11 does by eye against the printed
+chart ("according to Figure 8.11, the correct diameter would have been 7.75 in").
+
+**This was validated against the book, not just assumed to work**: solving for the
+diameter that gives 47 ft/stage at 800 gpm gives ≈7.66 in (book: 7.75 in, reading the
+chart by eye); solving for the speed that gives the same target gives ≈1656 rpm (book:
+1670 rpm). Both land within about 1% of the chart-read answers, using a fraction of the
+digitization effort a full four-curve-plus-contours trace would have taken. Efficiency
+gets the same treatment: it's preserved along affinity-scaled points (same point stays
+the same % of its own curve regardless of trim), so one peaked model
+(`qBep`/`effMax`/`k` in `PUMP_MODELS`) calibrated from two labeled points on the
+reference curve (not a contour-web digitization) covers every trim and speed. Documented
+in the tool itself as indicative, not exact, for this reason.
+
+The Flowserve sheet's own **stage-derate table** (`stageDerateFt`: pumps with fewer than
+4 stages produce slightly less than `n × head/stage`, because the first stage lacks the
+fully-developed inflow later stages see) is applied once to the whole pump's TDH, not
+scaled by diameter/speed — it's a small, roughly-constant mechanical correction, and the
+book's own examples never rescale it either.
+
+If a second pump model is ever added, follow the same recipe: one reference curve (ideally anchored to a textbook or spec-sheet point), a quadratic fit, and the affinity-law functions already in `pump-data.js` handle the rest — no second digitization method needed.
+
 ## Where results intentionally differ from the textbook
 
 A few tools carry full precision through every step rather than rounding

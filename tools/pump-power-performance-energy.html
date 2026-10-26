@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pump Power, Performance Rating &amp; Energy Cost &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Pump Power, Performance Rating &amp; Energy Cost</p>
+
+  <section class="page-intro">
+    <h1>Pump Power, Performance Rating &amp; Energy Cost</h1>
+    <p class="tool-purpose">
+      I turn a pump's lift and pressure into the power it needs, grade how well it's
+      actually performing against the Nebraska benchmark, and price out the energy cost
+      of every acre-inch it pumps.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. Total Dynamic Head (TDH)</h2>
+
+    <div class="solve-for" id="tdh-mode-group">
+      <input type="radio" name="tdh-mode" id="tdh-lift" value="lift" checked>
+      <label for="tdh-lift">Lifting from a source</label>
+      <input type="radio" name="tdh-mode" id="tdh-booster" value="booster">
+      <label for="tdh-booster">Booster pump</label>
+    </div>
+
+    <div class="field" id="field-lift-p">
+      <label for="lift-p">Discharge pressure (P)</label>
+      <div class="slider-number-row">
+        <input type="number" id="lift-p-number" min="0" max="150" step="1" value="50">
+        <span class="unit-label">psi</span>
+      </div>
+      <input type="range" id="lift-p" min="0" max="150" step="1" value="50">
+    </div>
+
+    <div class="field" id="field-lift-l">
+      <label for="lift-l">Lift from source to pump discharge (L)</label>
+      <div class="slider-number-row">
+        <input type="number" id="lift-l-number" min="0" max="500" step="5" value="100">
+        <span class="unit-label">ft</span>
+      </div>
+      <input type="range" id="lift-l" min="0" max="500" step="5" value="100">
+    </div>
+
+    <div class="field field--hidden" id="field-booster">
+      <label for="booster-pout">Discharge pressure (P<sub>out</sub>)</label>
+      <div class="slider-number-row">
+        <input type="number" id="booster-pout-number" min="0" max="200" step="1" value="80">
+        <span class="unit-label">psi</span>
+      </div>
+      <input type="range" id="booster-pout" min="0" max="200" step="1" value="80">
+      <label for="booster-pin" style="margin-top:0.75rem;">Inlet pressure (P<sub>in</sub>)</label>
+      <div class="slider-number-row">
+        <input type="number" id="booster-pin-number" min="0" max="150" step="1" value="30">
+        <span class="unit-label">psi</span>
+      </div>
+      <input type="range" id="booster-pin" min="0" max="150" step="1" value="30">
+    </div>
+
+    <div class="formula-box" id="tdh-formula" data-latex="TDH = 2.31 \times P + L">TDH = 2.31 &times; P + L</div>
+
+    <div class="stats-grid" id="tdh-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Pump &amp; Motor Power</h2>
+
+    <div class="field">
+      <label for="power-q">Flow rate (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="power-q-number" min="10" max="2000" step="10" value="800">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="power-q" min="10" max="2000" step="10" value="800">
+    </div>
+
+    <div class="field">
+      <label for="power-ep">Pump efficiency (E<sub>p</sub>)</label>
+      <div class="slider-number-row">
+        <input type="number" id="power-ep-number" min="40" max="90" step="1" value="80">
+        <span class="unit-label">%</span>
+      </div>
+      <input type="range" id="power-ep" min="40" max="90" step="1" value="80">
+    </div>
+
+    <div class="formula-box" data-latex="whp = \dfrac{Q \times TDH}{3960} \qquad bhp = \dfrac{whp}{E_p}">whp = Q &times; TDH / 3960, bhp = whp / Ep</div>
+
+    <div class="stats-grid" id="power-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Performance Rating</h2>
+    <p>How this pumping plant's measured fuel/energy use compares to the Nebraska Pumping Plant Performance Criteria (Table 8.6).</p>
+
+    <div class="field">
+      <label for="energy-source">Energy source</label>
+      <select id="energy-source"></select>
+    </div>
+
+    <div class="field">
+      <label for="measured-rate">Measured consumption rate</label>
+      <div class="value-unit-pair">
+        <input type="number" id="measured-rate" step="any" value="4">
+        <span class="unit-label" style="align-self:center;" id="measured-rate-unit">gal/hr</span>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="PR = \dfrac{\text{Actual whp-hr/unit}}{\text{Performance Criteria (Table 8.6)}}">PR = Actual Performance / Performance Criteria</div>
+
+    <div class="stats-grid" id="rating-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>4. Energy Cost per Acre-Inch</h2>
+
+    <div class="field">
+      <label for="price-per-unit">Price per unit of energy (optional, for a $ cost)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="price-per-unit" step="any" value="0">
+        <span class="unit-label" style="align-self:center;" id="price-unit-label">$/gal</span>
+      </div>
+    </div>
+
+    <div class="formula-box" data-latex="E = \dfrac{TDH}{8.75 \times PC \times PR}">E = TDH / (8.75 &times; PC &times; PR)</div>
+
+    <div class="stats-grid" id="cost-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Bundles the energy-side of pump selection from Chapter 8 (Examples 8.6-8.10) into
+      one chain: total dynamic head &rarr; power requirement &rarr; how this plant's actual
+      fuel or electricity use compares to the Nebraska Pumping Plant Performance Criteria
+      (Table 8.6, all five energy sources built in) &rarr; the energy cost of every
+      acre-inch pumped, with an optional price per unit for a $ figure the book doesn't
+      compute but a manager would want.
+    </p>
+    <div class="example-box">
+      <strong>Worked examples this bundles:</strong> Example 8.6 (800 gpm, 50 psi, 100 ft
+      lift, 80% efficient &rarr; 44 whp, 55 bhp), Example 8.7 (4 gal/hr diesel measured &rarr;
+      performance rating 0.88), Example 8.8 (what consumption would be at PR=1 &rarr;
+      3.52 gal/hr), and Examples 8.9/8.10 (2.24 gal/ac-in at the measured rating, 1.97
+      gal/ac-in if improved to PR=1). Defaults above reproduce all five.
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-muted);">
+      Note: this tool carries full precision through every step rather than rounding
+      TDH to a whole number the way the book's worked solution does for readability.
+      Eq. 8.13 gives TDH = 2.31&times;50+100 = 215.5 ft exactly; the book rounds this to
+      216 ft before continuing, so whp/bhp/PR/E downstream of it differ from the
+      printed answers by about 1% &mdash; a rounding-path difference, not a different
+      formula. Example 8.10 (PR=1) happens to land almost exactly on the book's 1.97
+      regardless.
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/pump-data.js"></script>
+<script src="pump-power-performance-energy.js"></script>
+</body>
+</html>

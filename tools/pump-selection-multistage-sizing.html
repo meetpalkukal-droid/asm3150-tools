@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pump Selection &amp; Multistage Sizing &mdash; ASM 3150/5150 Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  #pump-chart-wrap, #stage-stack-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    background: #FAFAF8;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  .verdict-box {
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .verdict-box--oversized { background: #fdecec; border: 2px solid #d9534f; color: #7a1f1f; }
+  .verdict-box--undersized { background: #fff3cc; border: 2px solid #F1B300; color: #6b4e00; }
+  .verdict-box--matched { background: #eef7ec; border: 2px solid #4c8c4a; color: #2c5a2a; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="../index.html">
+      <span class="brand__eyebrow">University of Idaho</span>
+      <span class="brand__title">ASM 3150 / 5150 Tools</span>
+      <span class="brand__subtitle">Irrigation Systems and Water Management</span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="breadcrumb"><a href="../index.html">Home</a> / Pump Selection &amp; Multistage Sizing</p>
+
+  <section class="page-intro">
+    <h1>Pump Selection &amp; Multistage Sizing</h1>
+    <p class="tool-purpose">
+      I show you whether a multistage pump actually matches what your irrigation system
+      needs &mdash; and if it doesn't, whether trimming the impeller or slowing it down with a
+      VFD gets you there, and what a throttling valve would waste instead.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>1. What Does Your System Need?</h2>
+
+    <div class="field">
+      <label for="sys-q">Flow rate (Q)</label>
+      <div class="slider-number-row">
+        <input type="number" id="sys-q-number" min="100" max="1500" step="10" value="800">
+        <span class="unit-label">gpm</span>
+      </div>
+      <input type="range" id="sys-q" min="100" max="1500" step="10" value="800">
+    </div>
+
+    <div class="field">
+      <label for="sys-p">Required discharge pressure</label>
+      <div class="slider-number-row">
+        <input type="number" id="sys-p-number" min="10" max="100" step="1" value="40">
+        <span class="unit-label">psi</span>
+      </div>
+      <input type="range" id="sys-p" min="10" max="100" step="1" value="40">
+    </div>
+
+    <div class="field">
+      <label for="sys-l">Pumping lift</label>
+      <div class="slider-number-row">
+        <input type="number" id="sys-l-number" min="0" max="400" step="1" value="143">
+        <span class="unit-label">ft</span>
+      </div>
+      <input type="range" id="sys-l" min="0" max="400" step="1" value="143">
+    </div>
+
+    <div class="formula-box" data-latex="TDH_{system} = 2.31 \times P + L">TDH(system) = 2.31 &times; P + L</div>
+
+    <div class="stats-grid" id="sys-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Configure the Pump</h2>
+
+    <div class="field">
+      <label for="pump-model">Pump model</label>
+      <select id="pump-model"></select>
+    </div>
+
+    <div class="solve-for" id="fit-mode-group">
+      <input type="radio" name="fit-mode" id="mode-explore" value="explore" checked>
+      <label for="mode-explore">Explore manually</label>
+      <input type="radio" name="fit-mode" id="mode-trim" value="trim">
+      <label for="mode-trim">Auto-trim impeller to match</label>
+      <input type="radio" name="fit-mode" id="mode-vfd" value="vfd">
+      <label for="mode-vfd">Auto-adjust speed (VFD) to match</label>
+    </div>
+
+    <div class="field" id="field-diameter">
+      <label for="pump-diameter">Impeller diameter</label>
+      <div class="slider-number-row">
+        <input type="number" id="pump-diameter-number" min="6.75" max="8.19" step="0.01" value="8.19">
+        <span class="unit-label">in</span>
+      </div>
+      <input type="range" id="pump-diameter" min="6.75" max="8.19" step="0.01" value="8.19">
+    </div>
+
+    <div class="field" id="field-rpm">
+      <label for="pump-rpm">Pump speed</label>
+      <div class="slider-number-row">
+        <input type="number" id="pump-rpm-number" min="1000" max="1770" step="10" value="1770">
+        <span class="unit-label">rpm</span>
+      </div>
+      <input type="range" id="pump-rpm" min="1000" max="1770" step="10" value="1770">
+    </div>
+
+    <div class="field">
+      <label for="pump-stages">Number of stages</label>
+      <div class="slider-number-row">
+        <input type="number" id="pump-stages-number" min="1" max="6" step="1" value="5">
+        <span class="unit-label">stages</span>
+      </div>
+      <input type="range" id="pump-stages" min="1" max="6" step="1" value="5">
+    </div>
+
+    <div id="stage-stack-wrap">
+      <svg id="stage-stack" width="560" height="120"></svg>
+    </div>
+
+    <div class="formula-box" data-latex="\dfrac{Q_2}{Q_1}=\dfrac{DIA_2}{DIA_1}=\dfrac{RPM_2}{RPM_1} \qquad \dfrac{TDH_2}{TDH_1}=\left(\dfrac{DIA_2}{DIA_1}\right)^{\!2}\!\!\left(\dfrac{RPM_2}{RPM_1}\right)^{\!2}">Affinity laws: Q &prop; D &prop; N,  TDH &prop; D&sup2;N&sup2;</div>
+
+    <div class="stats-grid" id="pump-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Is This Pump a Good Match?</h2>
+
+    <div id="verdict-box" class="verdict-box"></div>
+
+    <div id="pump-chart-wrap">
+      <svg id="pump-chart" width="640" height="440"></svg>
+    </div>
+
+    <div class="stats-grid" id="match-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>4. Cost of Throttling vs. Fixing It</h2>
+    <p>If the pump is oversized, a throttling valve wastes energy holding back the extra head. Here's what that costs compared to the properly sized alternative.</p>
+
+    <div class="field">
+      <label for="energy-source-2">Energy source</label>
+      <select id="energy-source-2"></select>
+    </div>
+
+    <div class="field">
+      <label for="annual-volume">Water pumped per year (optional, for an annual $ figure)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="annual-volume" step="any" value="0">
+        <span class="unit-label" style="align-self:center;">ac-in/yr</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="price-per-unit-2">Price per unit of energy (optional)</label>
+      <div class="value-unit-pair">
+        <input type="number" id="price-per-unit-2" step="any" value="0">
+        <span class="unit-label" style="align-self:center;" id="price-unit-label-2">$/gal</span>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="energy-waste-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About this calculator</h2>
+    <p>
+      Built around the Flowserve 12SKL/12KSL curve from Figure 8.11 &mdash; but instead of
+      reproducing just the four printed diameter curves, this tool digitized <em>one</em>
+      reference curve (8.19 in, 1770 rpm; a handful of points, quadratic fit, anchored to
+      this chapter's own Example 8.11 point of 57 ft/stage at 800 gpm) and generates every
+      other diameter or speed from it using the affinity laws (Eq. 8.15a/b) &mdash; the same
+      relationship manufacturers use to produce trim curves in the first place. Checked
+      against Example 8.11's own chart-read answers: this model's trim comes out to about
+      7.66 in (book: 7.75 in) and its VFD speed to about 1656 rpm (book: 1670 rpm), both
+      within about 1%. Efficiency is an approximate peaked curve calibrated from two
+      labeled points on the reference curve, not a digitization of the full efficiency
+      contour map &mdash; treat it as indicative.
+    </p>
+    <div class="example-box">
+      <strong>Worked example this reproduces:</strong> Example 8.11 &mdash; 800 gpm at 40 psi,
+      143 ft lift, 5-stage 12SKL with an 8.19-in impeller at 1770 rpm. The installed pump
+      is oversized (TDH&asymp;285 ft vs. 235 ft needed); the correct fix is trimming to
+      ~7.7 in or slowing to ~1660 rpm, and a throttling valve instead wastes about 21%
+      more energy per acre-inch. Defaults above reproduce it.
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  &copy; <span id="year"></span> University of Idaho — ASM 3150/5150, Irrigation Systems and Water Management.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/units.js"></script>
+<script src="../assets/js/pump-data.js"></script>
+<script src="pump-selection-multistage-sizing.js"></script>
+</body>
+</html>
