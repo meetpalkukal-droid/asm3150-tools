@@ -165,44 +165,6 @@ function calcMatch(model, diameterIn, rpm, stages, pumpTdh, Q, eff) {
     model, diameterIn, rpm, stages,
     systemQ: Q, systemTdh: systemTdh,
   });
-
-  calcEnergyWaste();
-}
-
-// ---------- Section 4: Energy waste cost ----------
-const energySource2 = document.getElementById("energy-source-2");
-const annualVolume = document.getElementById("annual-volume");
-const priceInput2 = document.getElementById("price-per-unit-2");
-const energyWasteStats = document.getElementById("energy-waste-stats");
-
-populateEnergySourceSelect(energySource2);
-energySource2.value = "electricity";
-
-function updatePriceUnitLabel2() {
-  const src = energySourceByKey(energySource2.value);
-  document.getElementById("price-unit-label-2").textContent = "$/" + src.unit;
-}
-
-function calcEnergyWaste() {
-  if (!lastMatch) { energyWasteStats.innerHTML = ""; return; }
-  const src = energySourceByKey(energySource2.value);
-  const PR = 1; // assume the pump itself performs at the Nebraska criteria; the inefficiency being isolated here is the throttling valve, not the pump/motor/drive train
-  const eThrottled = energyPerAcIn(lastMatch.pumpTdh, src.pc, PR);
-  const eFixed = energyPerAcIn(systemTdh, src.pc, PR);
-  const wastePct = ((eThrottled - eFixed) / eFixed) * 100;
-
-  let html =
-    tile(formatNumber(eThrottled) + " " + src.unit + "/ac-in", "Energy use with the oversized pump + throttling valve") +
-    tile(formatNumber(eFixed) + " " + src.unit + "/ac-in", "Energy use with a correctly matched pump") +
-    tile(formatNumber(wastePct) + "%", "Extra energy from throttling instead of fixing it", true);
-
-  const vol = parseFloat(annualVolume.value);
-  const price = parseFloat(priceInput2.value);
-  if (!isNaN(vol) && vol > 0 && !isNaN(price) && price > 0) {
-    const extraCost = (eThrottled - eFixed) * vol * price;
-    html += tile("$" + formatNumber(extraCost) + "/yr", "Extra annual cost from throttling", true);
-  }
-  energyWasteStats.innerHTML = html;
 }
 
 // ---------- Wire up ----------
@@ -210,8 +172,6 @@ document.querySelectorAll('input[name="fit-mode"]').forEach((r) =>
   r.addEventListener("change", () => { updateFitModeControls(); calcPump(); })
 );
 pumpModelSelect.addEventListener("change", calcPump);
-energySource2.addEventListener("change", () => { updatePriceUnitLabel2(); calcEnergyWaste(); });
-[annualVolume, priceInput2].forEach((el) => el.addEventListener("input", calcEnergyWaste));
 
 bindSliderNumber(sysQ, sysQNumber, calcSystem);
 bindSliderNumber(sysP, sysPNumber, calcSystem);
@@ -221,5 +181,4 @@ bindSliderNumber(pumpRpm, pumpRpmNumber, calcPump);
 bindSliderNumber(pumpStages, pumpStagesNumber, calcPump);
 
 updateFitModeControls();
-updatePriceUnitLabel2();
 calcSystem();
