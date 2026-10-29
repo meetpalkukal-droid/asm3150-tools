@@ -49,19 +49,22 @@ const powerEp = document.getElementById("power-ep"), powerEpNumber = document.ge
 const powerStats = document.getElementById("power-stats");
 
 let currentWhp = NaN;
+let currentBhp = NaN;
+let currentQ = NaN;
 
 function calcPower() {
   const Q = parseFloat(powerQ.value);
   const Ep = parseFloat(powerEp.value) / 100;
+  currentQ = Q;
   if (isNaN(currentTdh) || isNaN(Q) || isNaN(Ep)) {
     powerStats.innerHTML = tile("—", "Enter values above");
     return;
   }
   currentWhp = waterHp(Q, currentTdh);
-  const bhp = brakeHp(currentWhp, Ep);
+  currentBhp = brakeHp(currentWhp, Ep);
   powerStats.innerHTML =
     tile(formatNumber(currentWhp) + " hp", "Water horsepower (whp)") +
-    tile(formatNumber(bhp) + " hp", "Brake horsepower (bhp)", true);
+    tile(formatNumber(currentBhp) + " hp", "Brake horsepower (bhp)", true);
   calcRating();
 }
 
@@ -75,6 +78,8 @@ populateEnergySourceSelect(energySource);
 energySource.value = "diesel";
 
 let currentPr = NaN;
+let currentRate = NaN;
+let currentHypoRate = NaN;
 
 function updateUnitLabels() {
   const src = energySourceByKey(energySource.value);
@@ -85,18 +90,21 @@ function updateUnitLabels() {
 function calcRating() {
   const src = energySourceByKey(energySource.value);
   const rate = parseFloat(measuredRate.value);
+  currentRate = rate;
   if (isNaN(currentWhp) || isNaN(rate) || rate === 0) {
     ratingStats.innerHTML = tile("—", "Enter values above");
+    currentPr = NaN;
+    calcCost();
     return;
   }
   const actualPerf = currentWhp / rate; // whp-hr per unit
   currentPr = performanceRating(actualPerf, src.pc);
-  const hypoRate = energyPerHour(currentWhp, src.pc, 1); // consumption/hr if PR=1
+  currentHypoRate = energyPerHour(currentWhp, src.pc, 1); // consumption/hr if PR=1
 
   ratingStats.innerHTML =
     tile(formatNumber(actualPerf) + " whp-hr/" + src.unit, "Actual performance") +
     tile(formatNumber(currentPr), "Performance rating (PR)", true) +
-    tile(formatNumber(hypoRate) + " " + src.unit + "/hr", "Consumption if operating at PR=1");
+    tile(formatNumber(currentHypoRate) + " " + src.unit + "/hr", "Consumption if operating at PR=1");
   calcCost();
 }
 
@@ -108,6 +116,7 @@ function calcCost() {
   const src = energySourceByKey(energySource.value);
   if (isNaN(currentTdh) || isNaN(currentPr)) {
     costStats.innerHTML = tile("—", "Enter values above");
+    buildOutcomes();
     return;
   }
   const eActual = energyPerAcIn(currentTdh, src.pc, currentPr);
@@ -121,6 +130,86 @@ function calcCost() {
     html += tile("$" + formatNumber(eActual * price) + "/ac-in", "Cost per ac-in at measured PR", true);
   }
   costStats.innerHTML = html;
+  buildOutcomes();
+}
+
+// ---------- Section 5: Plain-language outcomes ----------
+const outcomesSummary = document.getElementById("outcomes-summary");
+
+function buildOutcomes() {
+  if (isNaN(currentTdh) || isNaN(currentQ) || isNaN(currentBhp)) {
+    outcomesSummary.className = "outcome-box";
+    outcomesSummary.innerHTML = "<p>Enter your system's flow rate, head, and efficiency above to see what these numbers mean in practice.</p>";
+    return;
+  }
+
+  const src = energySourceByKey(energySource.value);
+  const paras = [];
+
+  paras.push(
+    "<p><strong>What size motor do I need?</strong> To deliver " + formatNumber(currentQ) +
+    " gpm against " + formatNumber(currentTdh) + " ft of total dynamic head, this pump has to " +
+    "supply about " + formatNumber(currentWhp) + " water horsepower. At " + powerEp.value +
+    "% pump efficiency, that takes a motor rated at least <strong>" + formatNumber(currentBhp) +
+    " hp</strong>.</p>"
+  );
+
+  let boxClass = "outcome-box";
+
+  if (!isNaN(currentPr) && !isNaN(currentRate) && !isNaN(currentHypoRate)) {
+    const extraPct = (1 / currentPr - 1) * 100;
+    const extraRate = currentRate - currentHypoRate;
+
+    if (currentPr >= 0.95) {
+      boxClass += " outcome-box--good";
+      paras.push(
+        "<p><strong>Is this plant performing well?</strong> Yes &mdash; at a performance rating of " +
+        formatNumber(currentPr) + ", it's running at or near the Nebraska benchmark for a " +
+        src.label.toLowerCase() + "-powered plant. There's little to gain from chasing efficiency " +
+        "further here.</p>"
+      );
+    } else if (currentPr >= 0.80) {
+      boxClass += " outcome-box--caution";
+      paras.push(
+        "<p><strong>Is this plant performing well?</strong> Not quite &mdash; a performance rating of " +
+        formatNumber(currentPr) + " means it's burning about " + formatNumber(extraPct) +
+        "% more " + src.unit + " per hour than a plant running at the Nebraska benchmark would, " +
+        "for the same water delivered. Worth a maintenance check (worn impeller, misaligned engine, " +
+        "clogged intake), but not an emergency.</p>"
+      );
+    } else {
+      boxClass += " outcome-box--warning";
+      paras.push(
+        "<p><strong>Is this plant performing well?</strong> No &mdash; a performance rating of " +
+        formatNumber(currentPr) + " is a real red flag. It's using about " + formatNumber(extraPct) +
+        "% more " + src.unit + " per hour (" + formatNumber(currentRate) + " vs. a benchmark " +
+        formatNumber(currentHypoRate) + " " + src.unit + "/hr) than it should for the same output " +
+        "&mdash; worth an inspection before another season of paying for it.</p>"
+      );
+    }
+
+    if (extraRate > 0.0001) {
+      let savingsSentence =
+        "<p><strong>What would fixing it save me?</strong> Bringing this plant up to the benchmark " +
+        "(PR = 1) would cut consumption by about " + formatNumber(extraRate) + " " + src.unit + "/hr";
+      const price = parseFloat(priceInput.value);
+      if (!isNaN(price) && price > 0) {
+        savingsSentence += " &mdash; roughly $" + formatNumber(extraRate * price) + "/hr, or $" +
+          formatNumber((energyPerAcIn(currentTdh, src.pc, currentPr) - energyPerAcIn(currentTdh, src.pc, 1)) * price) +
+          " saved on every acre-inch pumped";
+      }
+      savingsSentence += ".</p>";
+      paras.push(savingsSentence);
+    }
+  } else {
+    paras.push(
+      "<p><strong>Is this plant performing well?</strong> Enter a measured fuel or electricity " +
+      "consumption rate above to find out.</p>"
+    );
+  }
+
+  outcomesSummary.className = boxClass;
+  outcomesSummary.innerHTML = paras.join("");
 }
 
 // ---------- Wire up ----------

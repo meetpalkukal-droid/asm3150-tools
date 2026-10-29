@@ -9,6 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .outcome-box {
+    border-radius: var(--radius);
+    padding: 1.1rem 1.3rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .outcome-box--good { background: #eef7ec; border: 2px solid #4c8c4a; color: #2c5a2a; }
+  .outcome-box--caution { background: #fff3cc; border: 2px solid #F1B300; color: #6b4e00; }
+  .outcome-box--warning { background: #fdecec; border: 2px solid #d9534f; color: #7a1f1f; }
+  .outcome-box p { margin: 0 0 0.75rem; }
+  .outcome-box p:last-child { margin-bottom: 0; }
+  .outcome-box strong { color: inherit; }
+</style>
 </head>
 <body>
 
@@ -147,6 +161,12 @@
     <div class="formula-box" data-latex="E = \dfrac{TDH}{8.75 \times PC \times PR}">E = TDH / (8.75 &times; PC &times; PR)</div>
 
     <div class="stats-grid" id="cost-stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>5. What This Means for Your Pumping Plant</h2>
+    <p>Plain-language answers to the questions these numbers actually get asked for, using the values entered above.</p>
+    <div id="outcomes-summary" class="outcome-box"></div>
   </section>
 
   <section class="panel">
